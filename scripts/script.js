@@ -7,6 +7,10 @@ var cubeVertexPositionBuffer;
 var cubeVertexColorBuffer;
 var cubeVertexIndexBuffer;
 
+var obstacleVertexPositionBuffer;
+var obstacleVertexColorBuffer;
+var obstacleVertexIndexBuffer;
+
 // Model-view and projection matrix and model-view matrix stack
 var mvMatrixStack = [];
 var mvMatrix = mat4.create();
@@ -27,7 +31,15 @@ var playerZ = 0;
 
 var playerRotation = 0;
 
-var speed = 1;
+var speed = 0.3;
+
+
+
+//cube object test
+var cubeBase = [0, 0, 0];
+var cubeX = 1.5;
+var cubeY = 1.5;
+var cubeZ = 1.5;
 
 
 //
@@ -292,6 +304,116 @@ function initBuffers() {
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
   cubeVertexIndexBuffer.itemSize = 1;
   cubeVertexIndexBuffer.numItems = 36;
+  
+  
+  
+  
+  
+  ////////////////////////////////////////// COPY PASTED CUBE, FIXED TO FIT CRITERIA FOR TESTING
+  // OBSTACLE
+  // Create a buffer for the cube's vertices.
+  obstacleVertexPositionBuffer = gl.createBuffer();
+
+  // Select the cubeVertexPositionBuffer as the one to apply vertex
+  // operations to from here out.
+  gl.bindBuffer(gl.ARRAY_BUFFER, obstacleVertexPositionBuffer);
+
+  // Now create an array of vertices for the cube.
+  vertices = [
+    // Front face
+    -1.0, -1.0,  1.0,
+     1.0, -1.0,  1.0,
+     1.0,  1.0,  1.0,
+    -1.0,  1.0,  1.0,
+
+    // Back face
+    -1.0, -1.0, -1.0,
+    -1.0,  1.0, -1.0,
+     1.0,  1.0, -1.0,
+     1.0, -1.0, -1.0,
+
+    // Top face
+    -1.0,  1.0, -1.0,
+    -1.0,  1.0,  1.0,
+     1.0,  1.0,  1.0,
+     1.0,  1.0, -1.0,
+
+    // Bottom face
+    -1.0, -1.0, -1.0,
+     1.0, -1.0, -1.0,
+     1.0, -1.0,  1.0,
+    -1.0, -1.0,  1.0,
+
+    // Right face
+     1.0, -1.0, -1.0,
+     1.0,  1.0, -1.0,
+     1.0,  1.0,  1.0,
+     1.0, -1.0,  1.0,
+
+    // Left face
+    -1.0, -1.0, -1.0,
+    -1.0, -1.0,  1.0,
+    -1.0,  1.0,  1.0,
+    -1.0,  1.0, -1.0
+  ];
+
+  // Now pass the list of vertices into WebGL to build the shape. We
+  // do this by creating a Float32Array from the JavaScript array,
+  // then use it to fill the current vertex buffer.
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+  obstacleVertexPositionBuffer.itemSize = 3;
+  obstacleVertexPositionBuffer.numItems = 24;
+
+  // Now set up the colors for the vertices. We'll use solid colors
+  // for each face.
+  obstacleVertexColorBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, obstacleVertexColorBuffer);
+  colors = [
+      [1.0, 0.0, 0.0, 8.0], // Front face
+      [1.0, 0.0, 0.0, 8.0], // Back face
+      [1.0, 0.0, 0.0, 8.0], // Top face
+      [1.0, 0.0, 0.0, 8.0], // Bottom face
+      [1.0, 0.0, 0.0, 8.0], // Right face
+      [1.0, 0.0, 0.0, 8.0]  // Left face
+  ];
+
+  // Convert the array of colors into a table for all the vertices.
+  var unpackedColors = [];
+  for (var i in colors) {
+    var color = colors[i];
+
+    // Repeat each color four times for the four vertices of the face
+    for (var j=0; j < 4; j++) {
+          unpackedColors = unpackedColors.concat(color);
+      }
+  }
+
+  // Pass the colors into WebGL
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpackedColors), gl.STATIC_DRAW);
+  obstacleVertexColorBuffer.itemSize = 4;
+  obstacleVertexColorBuffer.numItems = 24;
+
+  // Build the element array buffer; this specifies the indices
+  // into the vertex array for each face's vertices.
+  obstacleVertexIndexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, obstacleVertexIndexBuffer);
+
+  // This array defines each face as two triangles, using the
+  // indices into the vertex array to specify each triangle's
+  // position.
+  var obstacleVertexIndices = [
+      0, 1, 2,      0, 2, 3,    // Front face
+      4, 5, 6,      4, 6, 7,    // Back face
+      8, 9, 10,     8, 10, 11,  // Top face
+      12, 13, 14,   12, 14, 15, // Bottom face
+      16, 17, 18,   16, 18, 19, // Right face
+      20, 21, 22,   20, 22, 23  // Left face
+  ];
+
+  // Now send the element array to GL
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(obstacleVertexIndices), gl.STATIC_DRAW);
+  obstacleVertexIndexBuffer.itemSize = 1;
+  obstacleVertexIndexBuffer.numItems = 36;
 }
 
 //
@@ -314,7 +436,8 @@ function drawScene() {
   // Set the drawing position to the "identity" point, which is
   // the center of the scene.
   mat4.identity(mvMatrix);
-  mat4.translate(mvMatrix, [0, -4, -9]);
+  mat4.translate(mvMatrix, [0, -4, -14]);
+  mat4.rotate(mvMatrix, -degToRad(playerRotation), [0, 1, 0]);
 
 
 
@@ -322,7 +445,6 @@ function drawScene() {
 
   // Now move the drawing position a bit to where we want to start
   // drawing the cube.
-  mat4.translate(mvMatrix, [0.0, 0.0, -5.0]);
 
   // Save the current matrix, then rotate before we draw.
    mat4.translate(mvMatrix, [-playerX, 0, -playerZ]);
@@ -349,6 +471,41 @@ function drawScene() {
 
   // Restore the original matrix
   mvPopMatrix();
+  
+  
+  
+  
+  // OBSTACLE:
+
+  // Now move the drawing position a bit to where we want to start
+  // drawing the cube.
+
+
+  // Save the current matrix, then rotate before we draw.
+   mat4.translate(mvMatrix, [-playerX, 0, -playerZ]);
+  mvPushMatrix();
+  mat4.translate(mvMatrix, [0.0, 0.0, -16.0]);
+
+
+  // Draw the cube by binding the array buffer to the cube's vertices
+  // array, setting attributes, and pushing it to GL.
+  gl.bindBuffer(gl.ARRAY_BUFFER, obstacleVertexPositionBuffer);
+  gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, obstacleVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+  // Set the colors attribute for the vertices.
+  gl.bindBuffer(gl.ARRAY_BUFFER, obstacleVertexColorBuffer);
+  gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, obstacleVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, obstacleVertexIndexBuffer);
+
+  // Draw the cube.
+  setMatrixUniforms();
+  gl.drawElements(gl.TRIANGLES, obstacleVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+
+  // Restore the original matrix
+  mvPopMatrix();
+  
+  //var tempCube = vec4.create();
 }
 
 //
