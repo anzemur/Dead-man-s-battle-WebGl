@@ -27,6 +27,8 @@ var playerZ = 0;
 
 var playerRotation = 0;
 
+var speed = 1;
+
 
 //
 // Matrix utility functions
@@ -312,6 +314,7 @@ function drawScene() {
   // Set the drawing position to the "identity" point, which is
   // the center of the scene.
   mat4.identity(mvMatrix);
+  mat4.translate(mvMatrix, [0, -4, -9]);
 
 
 
@@ -322,6 +325,7 @@ function drawScene() {
   mat4.translate(mvMatrix, [0.0, 0.0, -5.0]);
 
   // Save the current matrix, then rotate before we draw.
+   mat4.translate(mvMatrix, [-playerX, 0, -playerZ]);
   mvPushMatrix();
 
   mat4.translate(mvMatrix, [playerX, 0, playerZ]);
@@ -399,19 +403,23 @@ function handleKeys() {
   if (currentlyPressedKeys[87]) {
       //W - player moves forward
       console.log("Naprej");
-      playerZ -= 0.5;
+      playerZ -= Math.cos(degToRad(playerRotation))*speed;
+      playerX -= Math.sin(degToRad(playerRotation))*speed;
   }
   if (currentlyPressedKeys[83]) {
       //S - player moves backward
-      playerZ += 0.5;
+      playerZ += Math.cos(degToRad(playerRotation))*speed;
+      playerX += Math.sin(degToRad(playerRotation))*speed;
   }
   if (currentlyPressedKeys[81]) {
       //Q - player moves Left
-      playerX -= 0.5;
+      playerZ -= Math.sin(degToRad(playerRotation))*speed;
+      playerX -= Math.cos(degToRad(playerRotation))*speed;
   }
   if (currentlyPressedKeys[69]) {
       //E - player moves right
-      playerX += 0.5;
+      playerZ += Math.sin(degToRad(playerRotation))*speed;
+      playerX += Math.cos(degToRad(playerRotation))*speed;
 
   }
   if (currentlyPressedKeys[68]) {
