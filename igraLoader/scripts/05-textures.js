@@ -219,17 +219,18 @@ function handleTextureLoaded(texture) {
 var model;
 var texImage;
 function loadObject(){
-  loadJSONResource('/Susan.json', function (modelErr, modelObj) {
+  loadJSONResource('./assets/sferaTestna.json', function (modelErr, modelObj) {
     console.log("aaaaaaaaa");
     if (modelErr) {
       alert('Fatal error getting model (see console)');
-      console.error(fsErr);
+      console.error(modelErr);
     } else {
-      loadImage('/SusanTexture.png', function (imgErr, img) {
+      loadImage('./assets/newTestBarva.png', function (imgErr, img) {
         if (imgErr) {
           alert('Fatal error getting texture (see console)');
           console.error(imgErr);
         } else {
+          console.log("model naloadan?")
           model = modelObj;
           texImage = img;
           //RunDemo(vsText, fsText, img, modelObj);
@@ -447,14 +448,14 @@ function start() {
     initShaders();
 
     loadObject();
-    console.log(model);
+    
     // Here's where we call the routine that builds all the objects
     // we'll be drawing.
     initBuffers();
 
     // Next, load and set up the textures we'll be using.
     initTextures();
-
+    console.log(model);
     // Set up to draw the scene periodically.
     setInterval(function() {
       if (texturesLoaded) { // only draw scene and animate when textures are loaded.
