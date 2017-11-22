@@ -27,19 +27,19 @@ var currentlyPressedKeys = {};
 
 
 
-world = new OIMO.World({ 
-    timestep: 1/60, 
-    iterations: 8, 
+world = new OIMO.World({
+    timestep: 1/60,
+    iterations: 8,
     broadphase: 2, // 1 brute force, 2 sweep and prune, 3 volume tree
-    worldscale: 1, // scale full world 
+    worldscale: 1, // scale full world
     random: true,  // randomize sample
     info: false,   // calculate statistic or not
-    gravity: [0,-9.8,0] 
+    gravity: [0,-9.8,0]
 });
 
 
-var body = world.add({ 
-    type:'sphere', // type of shape : sphere, box, cylinder 
+var body = world.add({
+    type:'sphere', // type of shape : sphere, box, cylinder
     size:[1,1,1], // size of shape
     pos:[0,0,0], // start position in degree
     rot:[0,0,90], // start rotation in degree
@@ -219,6 +219,36 @@ function setMatrixUniforms() {
   gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
 }
 
+//LOADANJE JSON MODELOV
+function loadModel(url) {
+  var request = new XMLHttpRequest();
+  request.open('GET', url + '?please-dont-cache=' + Math.random(), true);
+  request.onload = function () {
+		if (request.status < 200 || request.status > 299) {
+			callback('Error: HTTP Status ' + request.status + ' on resource ' + url);
+		} else {
+      //console.log(request.responseText);
+      handleLoadedModel(JSON.parse(request.responseText));
+      //model = request.responseText;
+			//callback(null, request.responseText);
+		}
+	};
+  request.send();
+}
+
+var modelVertices;
+var modelIndices;
+var modelTexCoords;
+function handleLoadedModel(modelData){
+  modelVertices = modelData.meshes[0].vertices;
+	modelIndices = [].concat.apply([], modelData.meshes[0].faces);
+	modelTexCoords = modelData.meshes[0].texturecoords[0];
+  console.log(modelVertices);
+  console.log(modelIndices);
+  console.log(modelTexCoords);
+  //OD TUKI NAPREJ INICIALIZIRAMO BUFFERJE
+}
+
 //
 // initBuffers
 //
@@ -331,11 +361,11 @@ function initBuffers() {
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
   cubeVertexIndexBuffer.itemSize = 1;
   cubeVertexIndexBuffer.numItems = 36;
-  
-  
-  
-  
-  
+
+
+
+
+
   ////////////////////////////////////////// COPY PASTED CUBE, FIXED TO FIT CRITERIA FOR TESTING
   // OBSTACLE
   // Create a buffer for the cube's vertices.
@@ -498,10 +528,10 @@ function drawScene() {
 
   // Restore the original matrix
   mvPopMatrix();
-  
-  
-  
-  
+
+
+
+
   // OBSTACLE:
 
   // Now move the drawing position a bit to where we want to start
@@ -531,7 +561,7 @@ function drawScene() {
 
   // Restore the original matrix
   mvPopMatrix();
-  
+
   //var tempCube = vec4.create();
 }
 
@@ -646,7 +676,10 @@ function start() {
     // Initialize the shaders; this is where all the lighting for the
     // vertices and so forth is established.
     initShaders();
-
+    loadModel("./JSONLoader/sferaTestna.json");
+    console.log(modelVertices);
+    console.log(modelIndices);
+    console.log(modelTexCoords);
     // Here's where we call the routine that builds all the objects
     // we'll be drawing.
     initBuffers();
