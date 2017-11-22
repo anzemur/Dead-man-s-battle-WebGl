@@ -7,9 +7,15 @@ var cubeVertexPositionBuffer;
 var cubeVertexColorBuffer;
 var cubeVertexIndexBuffer;
 
+var model1VertexPositionBuffer;
+var model1VertexTexBuffer;
+var model1VertexIndexBuffer;
+
 var obstacleVertexPositionBuffer;
 var obstacleVertexColorBuffer;
 var obstacleVertexIndexBuffer;
+
+var texturesLoaded = 0; //Ko se nalozijo vse texture lahko narisemo sceno
 
 // Model-view and projection matrix and model-view matrix stack
 var mvMatrixStack = [];
@@ -219,6 +225,32 @@ function setMatrixUniforms() {
   gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
 }
 
+//LOADANJE TEXTUR
+function initTextures() {
+  texture1 = gl.createTexture();
+  texture1.image = new Image();
+  texture1.image.onload = function () {
+    handleTextureLoaded(texture1)
+  }
+  texture1.image.src = "./JSONLoader/newTestBarva.png";
+}
+
+function handleTextureLoaded(texture) {
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+
+  // Third texture usus Linear interpolation approximation with nearest Mipmap selection
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.generateMipmap(gl.TEXTURE_2D);
+
+  gl.bindTexture(gl.TEXTURE_2D, null);
+
+  // when texture loading is finished we can draw scene.
+  texturesLoaded += 1;
+}
+
 //LOADANJE JSON MODELOV
 function loadModel(url) {
   var request = new XMLHttpRequest();
@@ -229,8 +261,6 @@ function loadModel(url) {
 		} else {
       //console.log(request.responseText);
       handleLoadedModel(JSON.parse(request.responseText));
-      //model = request.responseText;
-			//callback(null, request.responseText);
 		}
 	};
   request.send();
@@ -246,7 +276,25 @@ function handleLoadedModel(modelData){
   console.log(modelVertices);
   console.log(modelIndices);
   console.log(modelTexCoords);
+
   //OD TUKI NAPREJ INICIALIZIRAMO BUFFERJE
+  model1VertexPositionBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexPositionBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(modelVertices), gl.STATIC_DRAW);
+  model1VertexPositionBuffer.itemSize = 3;
+  model1VertexPositionBuffer.numItems = modelVertices.length / 3;
+
+  model1VertexTexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexTexBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(modelTexCoords), gl.STATIC_DRAW);
+  model1VertexTexBuffer.itemSize = 3;
+  model1VertexTexBuffer.numItems = modelTexCoords.length / 3;
+
+  model1VertexIndexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model1VertexIndexBuffer);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(modelIndices), gl.STATIC_DRAW);
+  model1VertexIndexBuffer.itemSize = 1;
+  model1VertexIndexBuffer.numItems = modelIndices.length;
 }
 
 //
@@ -677,9 +725,6 @@ function start() {
     // vertices and so forth is established.
     initShaders();
     loadModel("./JSONLoader/sferaTestna.json");
-    console.log(modelVertices);
-    console.log(modelIndices);
-    console.log(modelTexCoords);
     // Here's where we call the routine that builds all the objects
     // we'll be drawing.
     initBuffers();
