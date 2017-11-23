@@ -121,7 +121,7 @@ function getShader(gl, id) {
   if (!shaderScript) {
     return null;
   }
-  
+
   // Walk through the source element's children, building the
   // shader source string.
   var shaderSource = "";
@@ -132,7 +132,7 @@ function getShader(gl, id) {
     }
     currentChild = currentChild.nextSibling;
   }
-  
+
   // Now figure out what type of shader script we have,
   // based on its MIME type.
   var shader;
@@ -197,11 +197,11 @@ function createProgram(fragmentShaderID, vertexShaderID) {
   // turn on texture coordinate attribure at specified position
   gl.enableVertexAttribArray(program.textureCoordAttribute);
 
-  // store location of uPMatrix variable defined in shader - projection matrix 
+  // store location of uPMatrix variable defined in shader - projection matrix
   program.pMatrixUniform = gl.getUniformLocation(program, "uPMatrix");
-  // store location of uMVMatrix variable defined in shader - model-view matrix 
+  // store location of uMVMatrix variable defined in shader - model-view matrix
   program.mvMatrixUniform = gl.getUniformLocation(program, "uMVMatrix");
-  // store location of uNMatrix variable defined in shader - normal matrix 
+  // store location of uNMatrix variable defined in shader - normal matrix
   program.nMatrixUniform = gl.getUniformLocation(program, "uNMatrix");
   // store location of uSampler variable defined in shader
   program.samplerUniform = gl.getUniformLocation(program, "uSampler");
@@ -264,13 +264,13 @@ function initTextures() {
     handleTextureLoaded(crateTexture)
   }
   crateTexture.image.src = "./assets/crate.gif";
-  
+
   testBarvaTexture = gl.createTexture();
   testBarvaTexture.image = new Image();
   testBarvaTexture.image.onload = function () {
     handleTextureLoaded(testBarvaTexture)
   }
-  testBarvaTexture.image.src = "./assets/newTestBarva.png";
+  testBarvaTexture.image.src = "./assets/vojakTex.png";
 }
 
 function handleTextureLoaded(texture) {
@@ -314,12 +314,12 @@ function handleLoadedModel1(modelData){
   modelVertices = modelData.meshes[0].vertices;
   modelIndices = [].concat.apply([], modelData.meshes[0].faces);
   modelTexCoords = modelData.meshes[0].texturecoords[0];
-  
+
   console.log(modelVertices);
   console.log(modelIndices);
   console.log(modelTexCoords);
   console.log(modelNormals);
-  
+
   console.log("Vertex num: "+modelVertices.length);
   console.log("Normals num: "+modelNormals.length);
   console.log("Normals num /3: "+modelNormals.length/3);
@@ -361,11 +361,11 @@ function handleLoadedModel1(modelData){
 function initBuffers() {
   // Create a buffer for the cube's vertices.
   cubeVertexPositionBuffer = gl.createBuffer();
-  
+
   // Select the cubeVertexPositionBuffer as the one to apply vertex
   // operations to from here out.
   gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer);
-  
+
   // Now create an array of vertices for the cube.
   vertices = [
     // Front face
@@ -404,7 +404,7 @@ function initBuffers() {
     -1.0,  1.0,  1.0,
     -1.0,  1.0, -1.0
   ];
-  
+
   // Now pass the list of vertices into WebGL to build the shape. We
   // do this by creating a Float32Array from the JavaScript array,
   // then use it to fill the current vertex buffer.
@@ -415,7 +415,7 @@ function initBuffers() {
   // Map the normals onto the cube's faces.
   cubeVertexNormalBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexNormalBuffer);
-  
+
   // Now create an array of vertex normals for the cube.
   var vertexNormals = [
     // Front face
@@ -463,7 +463,7 @@ function initBuffers() {
   // Now create an array of texture coordinates for the cube.
   cubeVertexTextureCoordBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexTextureCoordBuffer);
-  
+
   // Now create an array of vertex texture coordinates for the cube.
   var textureCoords = [
     // Front face
@@ -614,7 +614,7 @@ function drawScene() {
   gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
   // Clear the canvas before we start drawing on it.
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  
+
   // Establish the perspective with which we want to view the
   // scene. Our field of view is 45 degrees, with a width/height
   // ratio of 640:480, and we only want to see objects between 0.1 units
@@ -674,7 +674,7 @@ function drawScene() {
   mat4.identity(mvMatrix);
   mat4.translate(mvMatrix, [0, -4, -14]);
   mat4.rotate(mvMatrix, -degToRad(playerRotation), [0, 1, 0]);
-  
+
   mat4.translate(mvMatrix, [-playerPosition[0], -playerPosition[1], -playerPosition[2]]);
   //console.log("-playerPosition: ", -playerPosition[0], -playerPosition[1], -playerPosition[2]);
   // store current location
@@ -741,8 +741,8 @@ function drawScene() {
 
   // restore last location
   mvPopMatrix();
-  
-  
+
+
   ///////////////////////////////////draw test sphere
   mvPushMatrix();
   mat4.translate(mvMatrix, playerPosition);
@@ -887,18 +887,18 @@ function start() {
     // Initialize the shaders; this is where all the lighting for the
     // vertices and so forth is established.
     initShaders();
-    
+
     // Here's where we call the routine that builds all the objects
     // we'll be drawing.
-    loadModel('./assets/sferaTestna.json', handleLoadedModel1);
+    loadModel('./assets/vojak.json', handleLoadedModel1);
     initBuffers();
-    
+
     // Next, load and set up the textures we'll be using.
     initTextures();
-    
+
     document.onkeydown = handleKeyDown;
     document.onkeyup = handleKeyUp;
-    
+
     // Set up to draw the scene periodically.
     setInterval(function() {
       if (texturesLoaded == numberOfTextures) { // only draw scene and animate when textures are loaded.
