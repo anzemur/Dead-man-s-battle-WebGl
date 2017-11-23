@@ -23,6 +23,17 @@ var model1VertexNormalBuffer;
 var model1VertexTexBuffer;
 var model1VertexIndexBuffer;
 
+var playerX = 0;
+var playerY = 0;
+var playerZ = 0;
+
+var playerRotation = 0;
+
+var speedFW = 0.3;
+var speedBW = 0.15;
+var speedSide = 0.2;
+
+
 // Model-view and projection matrix and model-view matrix stack
 var mvMatrixStack = [];
 var mvMatrix = mat4.create();
@@ -43,6 +54,8 @@ var cubeAngle = 0;
 
 // Helper variable for animation
 var lastTime = 0;
+
+var currentlyPressedKeys = {};
 
 //
 // Matrix utility functions
@@ -273,7 +286,7 @@ function handleTextureLoaded(texture) {
 
 
 //LOADANJE JSON MODELOV
-function loadModel(url) {
+function loadModel(url, modelLoader) {
   var request = new XMLHttpRequest();
   request.open('GET', url + '?please-dont-cache=' + Math.random(), true);
   request.onload = function () {
@@ -281,7 +294,7 @@ function loadModel(url) {
 			callback('Error: HTTP Status ' + request.status + ' on resource ' + url);
 		} else {
       //console.log(request.responseText);
-      handleLoadedModel(JSON.parse(request.responseText));
+      modelLoader(JSON.parse(request.responseText));
 		}
 	};
   request.send();
@@ -291,17 +304,12 @@ var modelVertices;
 var modelNormals;
 var modelIndices;
 var modelTexCoords;
-function handleLoadedModel(modelData){
-    modelNormals = [];
+function handleLoadedModel1(modelData){
+  modelNormals = modelData.meshes[0].normals;
   modelVertices = modelData.meshes[0].vertices;
   modelIndices = [].concat.apply([], modelData.meshes[0].faces);
   modelTexCoords = modelData.meshes[0].texturecoords[0];
-  var modelNormals1 = modelData.meshes[0].normals;
-  for(var i = 0; i < modelNormals1.length; i++) {
-      modelNormals.push(modelNormals1[i]);
-      //modelNormals.push(modelNormals1[i]);
-      //modelNormals.push(modelNormals1[i]);
-  }
+  
   console.log(modelVertices);
   console.log(modelIndices);
   console.log(modelTexCoords);
@@ -658,9 +666,11 @@ function drawScene() {
 
   // Now move the drawing position a bit to where we want to start
   // drawing the world.
-  mat4.translate(mvMatrix, [0, 0, -15]);
-  mat4.rotate(mvMatrix, degToRad(30), [1, 0, 0]);
-
+  mat4.identity(mvMatrix);
+  mat4.translate(mvMatrix, [0, -4, -14]);
+  mat4.rotate(mvMatrix, -degToRad(playerRotation), [0, 1, 0]);
+  
+  mat4.translate(mvMatrix, [-playerX, 0, -playerZ]);
   // store current location
   mvPushMatrix();
 
@@ -729,8 +739,10 @@ function drawScene() {
   
   ///////////////////////////////////draw test sphere
   mvPushMatrix();
-  mat4.rotate(mvMatrix, degToRad(cubeAngle), [0, 1, 0]);
-  mat4.translate(mvMatrix, [1.25, 0, 4]);
+  mat4.translate(mvMatrix, [playerX, 0, playerZ]);
+  mat4.rotate(mvMatrix, degToRad(playerRotation), [0, 1, 0]);
+  //mat4.rotate(mvMatrix, degToRad(cubeAngle), [0, 1, 0]);
+  //mat4.translate(mvMatrix, [1.25, 0, 4]);
 
   // Set the vertex positions attribute for the crate vertices.
   gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexPositionBuffer);
@@ -769,11 +781,68 @@ function animate() {
     var elapsed = timeNow - lastTime;
 
     // rotate the moon and the crate for a small amount
-    moonAngle += 0.05 * elapsed;
-    cubeAngle += 0.05 * elapsed;
+    //moonAngle += 0.05 * elapsed;
+    //cubeAngle += 0.05 * elapsed;
   }
   lastTime = timeNow;
 }
+
+
+function handleKeyDown(event) {
+  // storing the pressed state for individual key
+  currentlyPressedKeys[event.keyCode] = true;
+  handleKeys();
+
+}
+
+
+
+function handleKeyUp(event) {
+  // reseting the pressed state for individual key
+  currentlyPressedKeys[event.keyCode] = false;
+  handleKeys();
+}
+
+//
+// handleKeys
+//
+// Called every time before redeawing the screen for keyboard
+// input handling. Function continuisly updates helper variables.
+//
+function handleKeys() {
+  if (currentlyPressedKeys[87]) {
+      //W - player moves forward
+      console.log("Naprej");
+      playerZ -= Math.cos(degToRad(playerRotation))*speedFW;
+      playerX -= Math.sin(degToRad(playerRotation))*speedFW;
+  }
+  if (currentlyPressedKeys[83]) {
+      //S - player moves backward
+      playerZ += Math.cos(degToRad(playerRotation))*speedBW;
+      playerX += Math.sin(degToRad(playerRotation))*speedBW;
+  }
+  if (currentlyPressedKeys[81]) {
+      //Q - player moves Left
+      playerZ -= Math.sin(degToRad(playerRotation))*speedSide;
+      playerX -= Math.cos(degToRad(playerRotation))*speedSide;
+  }
+  if (currentlyPressedKeys[69]) {
+      //E - player moves right
+      playerZ += Math.sin(degToRad(playerRotation))*speedSide;
+      playerX += Math.cos(degToRad(playerRotation))*speedSide;
+
+  }
+  if (currentlyPressedKeys[68]) {
+      //D - player rotates right
+      playerRotation -= 2.5;
+  }
+
+  if (currentlyPressedKeys[65]) {
+      //A - player rotates left
+      playerRotation += 2.5;
+  }
+}
+
 
 //
 // start
@@ -799,11 +868,14 @@ function start() {
     
     // Here's where we call the routine that builds all the objects
     // we'll be drawing.
-    loadModel('./assets/sferaTestna.json');
+    loadModel('./assets/sferaTestna.json', handleLoadedModel1);
     initBuffers();
     
     // Next, load and set up the textures we'll be using.
     initTextures();
+    
+    document.onkeydown = handleKeyDown;
+    document.onkeyup = handleKeyUp;
     
     // Set up to draw the scene periodically.
     setInterval(function() {
