@@ -683,7 +683,7 @@ function drawScene() {
   // Now move the drawing position a bit to where we want to start
   // drawing the world.
   mat4.rotate(mvMatrix, degToRad(moonAngle), [0, 1, 0]);
-  mat4.translate(mvMatrix, moonPosition);
+  mat4.translate(mvMatrix, [-moonPosition[0], -moonPosition[1], -moonPosition[2]]);
 
   // Activate textures
   gl.activeTexture(gl.TEXTURE0);
@@ -923,6 +923,8 @@ function coliding(body1, rad1, body2, rad2) {
 }
 
 function anyColide() {
+    console.log("coliding moon ", coliding(playerPosition, playerRadius, moonPosition, moonRadius));
+    console.log("moon distance", dist(playerPosition, moonPosition));
     return (coliding(playerPosition, playerRadius, moonPosition, moonRadius) || //collision z luno
             coliding(playerPosition, playerRadius, cubePosition, cubeRadius));  //collision z kocko
 }
