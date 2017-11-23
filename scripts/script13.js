@@ -35,6 +35,8 @@ var playerRadius = 1;
 
 var playerHealth = 6;
 var playerHurtTimeout = 0;
+var playerAttackRange = 2;
+var playerAttackCooldown = 120;
 
 var playerRotation = 0;
 
@@ -45,12 +47,15 @@ var speedSide = 0.2;
 
 var zombie1Position = [15, 0, 0];
 var zombie1Rotation = 0;
+var zombie1Health = 10;
 
 var zombie2Position = [0, 0, 30];
 var zombie2Rotation = 0;
+var zombie2Health = 10;
 
 var zombie3Position = [0, 0, 0];
 var zombie3Rotation = 0;
+var zombie3Health = 10;
 
 var zombieSpeed = 0.05;
 var zombieRadius = 1;
@@ -64,6 +69,7 @@ var moonRadius = 1;
 
 var hurtAudio = new Audio('./assets/hurt.m4a');
 var deadAudio = new Audio('./assets/ded.m4a');
+var zombieHurtAudio = new Audio('./assets/zombieHurt.m4a')
 
 
 // Model-view and projection matrix and model-view matrix stack
@@ -835,7 +841,7 @@ function drawScene() {
   mvPopMatrix();
 
 
-  ///////////////////////////////////draw test sphere
+  ///////////////////////////////////draw warrior
   mvPushMatrix();
   mat4.translate(mvMatrix, playerPosition);
   
@@ -843,6 +849,118 @@ function drawScene() {
   mat4.translate(mvMatrix, [0, -1, 0]);
   
   mat4.rotate(mvMatrix, degToRad(playerRotation), [0, 1, 0]);
+  //mat4.rotate(mvMatrix, degToRad(cubeAngle), [0, 1, 0]);
+  //mat4.translate(mvMatrix, [1.25, 0, 4]);
+
+  // Set the vertex positions attribute for the crate vertices.
+  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexPositionBuffer);
+  gl.vertexAttribPointer(currentProgram.vertexPositionAttribute, model1VertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+  // Set the normals attribute for the vertices.
+  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexNormalBuffer);
+  gl.vertexAttribPointer(currentProgram.vertexNormalAttribute, model1VertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+  // Set the texture coordinates attribute for the vertices.
+  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexTexBuffer);
+  gl.vertexAttribPointer(currentProgram.textureCoordAttribute, model1VertexTexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+  // Activate textures
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, testBarvaTexture);
+  gl.uniform1i(currentProgram.samplerUniform, 0);
+
+  // Draw the crate
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model1VertexIndexBuffer);
+  setMatrixUniforms();
+  gl.drawElements(gl.TRIANGLES, model1VertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+
+  // restore last location
+  mvPopMatrix();
+  
+  
+  
+  
+  /////////////////////zombies
+  //1
+  mvPushMatrix();
+  mat4.translate(mvMatrix, zombie1Position);
+  
+  mat4.rotate(mvMatrix, degToRad(180), [0, 1, 0]);//popravki, da je pravilno obrnjen in na tleh
+  mat4.translate(mvMatrix, [0, -1, 0]);
+  
+  mat4.rotate(mvMatrix, degToRad(zombie1Rotation), [0, 1, 0]);
+  //mat4.rotate(mvMatrix, degToRad(cubeAngle), [0, 1, 0]);
+  //mat4.translate(mvMatrix, [1.25, 0, 4]);
+
+  // Set the vertex positions attribute for the crate vertices.
+  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexPositionBuffer);
+  gl.vertexAttribPointer(currentProgram.vertexPositionAttribute, model1VertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+  // Set the normals attribute for the vertices.
+  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexNormalBuffer);
+  gl.vertexAttribPointer(currentProgram.vertexNormalAttribute, model1VertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+  // Set the texture coordinates attribute for the vertices.
+  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexTexBuffer);
+  gl.vertexAttribPointer(currentProgram.textureCoordAttribute, model1VertexTexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+  // Activate textures
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, testBarvaTexture);
+  gl.uniform1i(currentProgram.samplerUniform, 0);
+
+  // Draw the crate
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model1VertexIndexBuffer);
+  setMatrixUniforms();
+  gl.drawElements(gl.TRIANGLES, model1VertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+
+  // restore last location
+  mvPopMatrix();
+  
+  //2
+  mvPushMatrix();
+  mat4.translate(mvMatrix, zombie2Position);
+  
+  mat4.rotate(mvMatrix, degToRad(180), [0, 1, 0]);//popravki, da je pravilno obrnjen in na tleh
+  mat4.translate(mvMatrix, [0, -1, 0]);
+  
+  mat4.rotate(mvMatrix, degToRad(zombie2Rotation), [0, 1, 0]);
+  //mat4.rotate(mvMatrix, degToRad(cubeAngle), [0, 1, 0]);
+  //mat4.translate(mvMatrix, [1.25, 0, 4]);
+
+  // Set the vertex positions attribute for the crate vertices.
+  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexPositionBuffer);
+  gl.vertexAttribPointer(currentProgram.vertexPositionAttribute, model1VertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+  // Set the normals attribute for the vertices.
+  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexNormalBuffer);
+  gl.vertexAttribPointer(currentProgram.vertexNormalAttribute, model1VertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+  // Set the texture coordinates attribute for the vertices.
+  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexTexBuffer);
+  gl.vertexAttribPointer(currentProgram.textureCoordAttribute, model1VertexTexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+  // Activate textures
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, testBarvaTexture);
+  gl.uniform1i(currentProgram.samplerUniform, 0);
+
+  // Draw the crate
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model1VertexIndexBuffer);
+  setMatrixUniforms();
+  gl.drawElements(gl.TRIANGLES, model1VertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+
+  // restore last location
+  mvPopMatrix();
+  
+  //3
+  mvPushMatrix();
+  mat4.translate(mvMatrix, zombie3Position);
+  
+  mat4.rotate(mvMatrix, degToRad(180), [0, 1, 0]);//popravki, da je pravilno obrnjen in na tleh
+  mat4.translate(mvMatrix, [0, -1, 0]);
+  
+  mat4.rotate(mvMatrix, degToRad(zombie3Rotation), [0, 1, 0]);
   //mat4.rotate(mvMatrix, degToRad(cubeAngle), [0, 1, 0]);
   //mat4.translate(mvMatrix, [1.25, 0, 4]);
 
@@ -893,6 +1011,12 @@ function animate() {
 function handleKeyDown(event) {
   // storing the pressed state for individual key
   currentlyPressedKeys[event.keyCode] = true;
+  
+  if(event.keyCode == 32) {
+    event.preventDefault();
+  }
+  
+  
   //handleKeys();
 
 }
@@ -914,7 +1038,7 @@ function handleKeyUp(event) {
 function handleKeys() {
   if (currentlyPressedKeys[87]) {
       //W - player moves forward
-      console.log("player pos: ", playerPosition);
+      //console.log("player pos: ", playerPosition);
       playerPosition[2] -= Math.cos(degToRad(playerRotation))*speedFW;
       playerPosition[0] -= Math.sin(degToRad(playerRotation))*speedFW;
       if(anyColide()){
@@ -960,6 +1084,36 @@ function handleKeys() {
       //A - player rotates left
       playerRotation += 2.5;
   }
+  
+  if(currentlyPressedKeys[32] && playerAttackCooldown == 0) {
+    if(coliding(playerPosition, playerRadius + playerAttackRange, zombie1Position, zombieRadius)) {
+      hurtZombie1(1, zombieHurtAudio);
+      if(zombie1Health <= 0) {
+        console.log("zombie1health: ", zombie3Health);
+        zombie1Health = 10;
+        zombie1Position[0] = playerPosition[0] -Math.sin(degToRad(playerRotation))*Math.random()*5+15;
+        zombie1Position[2] = playerPosition[2] -Math.cos(degToRad(playerRotation))*Math.random()*5+15;
+      }
+    }
+    if(coliding(playerPosition, playerRadius + playerAttackRange, zombie2Position, zombieRadius)) {
+      hurtZombie2(1, zombieHurtAudio);
+      if(zombie2Health <= 0) {
+        console.log("zombie2health: ", zombie3Health);
+        zombie2Health = 10;
+        zombie2Position[0] = playerPosition[0] -Math.sin(degToRad(playerRotation))*Math.random()*5+15;
+        zombie2Position[2] = playerPosition[2] -Math.cos(degToRad(playerRotation))*Math.random()*5+15;
+      }
+    }
+    if(coliding(playerPosition, playerRadius + playerAttackRange, zombie3Position, zombieRadius)) {
+      hurtZombie3(1, zombieHurtAudio);
+      if(zombie3Health <= 0) {
+        console.log("zombie3health: ", zombie3Health);
+        zombie3Health = 10;
+        zombie3Position[0] = playerPosition[0] -Math.sin(degToRad(playerRotation))*Math.random()*5+15;
+        zombie3Position[2] = playerPosition[2] -Math.cos(degToRad(playerRotation))*Math.random()*5+15;
+      }
+    }
+  }
 }
 
 
@@ -1002,6 +1156,9 @@ function start() {
         if(playerHurtTimeout > 0) {
           playerHurtTimeout -= 1;
         }
+        if(playerAttackCooldown > 0) {
+          playerAttackCooldown -= 1;
+        }
         if(playerHealth <= 0) {
           deadAudio.play();
           gameOver = true;
@@ -1036,21 +1193,6 @@ function anyColide() {
 }
 var timer = 0;
 function moveZombies() {
-    //var vecToMoon = [ moonPosition[0] - playerPosition[0], moonPosition[1] - playerPosition[1], moonPosition[2] - playerPosition[2]];
-    //var kotProtiLuni = radToDeg(Math.acos(vec3.dot(vecToMoon, [0, 0, -1])/vec3.length(vecToMoon)));
-    //console.log("vektor proti luni:", vecToMoon, "kot proti luni: ", kotProtiLuni, "playerRotation: ", playerRotation);
-    /*
-    var vecToMoon = [ moonPosition[0] - playerPosition[0], moonPosition[1] - playerPosition[1], moonPosition[2] - playerPosition[2]];
-    var kotProtiLuni = radToDeg(Math.acos(vec3.dot(vecToMoon, [0, 0, -1])/vec3.length(vecToMoon)));
-    playerRotation = kotProtiLuni;
-    var xMul = vecToMoon[0] < 0 ? 1 : -1;
-    var zMul = vecToMoon[2] < 0 ? 1 : -1;
-    playerPosition[0] -= xMul*Math.sin(degToRad(playerRotation))*zombieSpeed;
-    playerPosition[2] -= zMul*Math.cos(degToRad(playerRotation))*zombieSpeed;
-    
-    console.log("vektor proti luni:", vecToMoon, "kot proti luni: ", kotProtiLuni, "playerRotation: ", playerRotation);
-    //console.log("moon distance: ", dist(moonPosition, playerPosition), "moon coliding: ", coliding(moonPosition, moonRadius, playerPosition, playerRadius));
-    //*/
     
     var vecToPlayer1 = [-zombie1Position[0] + playerPosition[0], -zombie1Position[1] + playerPosition[1], -zombie1Position[2] + playerPosition[2]];
     zombie1Rotation = radToDeg(Math.acos(vec3.dot(vecToPlayer1, [0, 0, -1])/vec3.length(vecToPlayer1)));
@@ -1058,13 +1200,6 @@ function moveZombies() {
     var zMul1 = vecToPlayer1[2] < 0 ? 1 : -1;
     zombie1Position[0] -= xMul1 * Math.abs(Math.sin(degToRad(zombie1Rotation)))*zombieSpeed;
     zombie1Position[2] -= zMul1 * Math.abs(Math.cos(degToRad(zombie1Rotation)))*zombieSpeed;
-    
-    //console.log("zombie1 distance: ", dist(zombie1Position, playerPosition), "zombie1 coliding: ", coliding(zombie1Position, zombieRadius, playerPosition, playerRadius));
-    //console.log("zombie1 distance: ", dist(zombie1Position, playerPosition), "vecToPlayer1: ", vecToPlayer1);
-    //if(timer == 120) {
-    //  timer = 0;
-    //  console.log("zombie1 distance: ", dist(zombie1Position, playerPosition), "\nvecToPlayer1: ", vecToPlayer1, "\nzombie1 rotation", zombie1Rotation, "\nzombie position", zombie1Position, "\nplayerPosition", playerPosition);
-    //}
     
     if(coliding(zombie1Position, zombieRadius, playerPosition, playerRadius) && playerHurtTimeout == 0) {
         hurtPlayer(1, hurtAudio);
@@ -1105,8 +1240,23 @@ function moveZombies() {
  */
 function hurtPlayer(dmg, sound) {
   playerHealth -= dmg;
-  hurtAudio.play();
-  console.log("player health", playerHealth);
+  sound.play();
+  //console.log("player health", playerHealth);
+}
+
+function hurtZombie1(dmg, sound) {
+  zombie1Health -= dmg;
+  sound.play();
+}
+
+function hurtZombie2(dmg, sound) {
+  zombie2Health -= dmg;
+  sound.play();
+}
+
+function hurtZombie3(dmg, sound) {
+  zombie3Health -= dmg;
+  sound.play();
 }
 
 function restartGame() {
@@ -1121,12 +1271,15 @@ function restartGame() {
   
   zombie1Position = [15, 0, 0];
   zombie1Rotation = 0;
+  zombie1Health = 10;
   
   zombie2Position = [0, 0, 30];
   zombie2Rotation = 0;
+  zombie2Health = 10;
   
   zombie3Position = [0, 0, 0];
   zombie3Rotation = 0;
+  zombie3Health = 10;
   
   
   
