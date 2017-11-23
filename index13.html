@@ -1,0 +1,210 @@
+<html>
+	<head>
+		<title>Dead man's battle</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<link rel="stylesheet" href="./style/webgl.css" type="text/css">
+		<script type="text/javascript" src="./scripts/glMatrix-0.9.5.min.js"></script>
+		<script src="./scripts/script13.js" type="text/javascript"></script>
+
+	    <!-- Fragment shader program -->
+	    <script id="per-vertex-lighting-fs" type="x-shader/x-fragment">
+		    precision mediump float;
+
+	    	// uniform attribute for setting texture coordinates
+		    varying vec2 vTextureCoord;
+	    	// uniform attribute for setting lighting
+		    varying vec3 vLightWeighting;
+
+			// uniform attribute for enabling textures
+		    uniform bool uUseTextures;
+
+			// uniform attribute for setting 2D sampler
+		    uniform sampler2D uSampler;
+
+		    void main(void) {
+		        vec4 fragmentColor;
+		        if (uUseTextures) {
+		    		// sample the fragment color from texture
+		            fragmentColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+		        } else {
+		    		// set the fragment color to white
+		            fragmentColor = vec4(1.0, 1.0, 1.0, 1.0);
+		        }
+	    		// sample the fragment color from texture
+		        gl_FragColor = vec4(fragmentColor.rgb * vLightWeighting, fragmentColor.a);
+		    }
+		</script>
+
+	    <!-- Vertex shader program -->
+		<script id="per-vertex-lighting-vs" type="x-shader/x-vertex">
+    		// atributes for setting vertex position, normals and texture coordinates
+		    attribute vec3 aVertexPosition;
+		    attribute vec3 aVertexNormal;
+		    attribute vec2 aTextureCoord;
+
+		    uniform mat4 uMVMatrix;	// model-view matrix
+		    uniform mat4 uPMatrix;	// projection matrix
+		    uniform mat3 uNMatrix;	// normal matrix
+
+		    uniform vec3 uAmbientColor;	// ambient color uniform
+
+		    uniform vec3 uPointLightingLocation;	// light direction uniform
+		    uniform vec3 uPointLightingColor;		// light color
+
+		    uniform bool uUseLighting;	// lighting switch
+
+			// variable for passing texture coordinates and lighting weights
+			// from vertex shader to fragment shader
+		    varying vec2 vTextureCoord;
+		    varying vec3 vLightWeighting;
+
+		    void main(void) {
+		    	// calculate the vertex position
+		        vec4 mvPosition = uMVMatrix * vec4(aVertexPosition, 1.0);
+		        gl_Position = uPMatrix * mvPosition;
+		        vTextureCoord = aTextureCoord;
+
+		        if (!uUseLighting) {
+		            vLightWeighting = vec3(1.0, 1.0, 1.0);
+		        } else {
+		        	// transform normals
+		            vec3 lightDirection = normalize(uPointLightingLocation - mvPosition.xyz);
+
+		            // calculate wight for directional light
+		            vec3 transformedNormal = uNMatrix * aVertexNormal;
+		            float directionalLightWeighting = max(dot(transformedNormal, lightDirection), 0.0);
+
+		            // calculate lighting
+		            vLightWeighting = uAmbientColor + uPointLightingColor * directionalLightWeighting;
+		        }
+		    }
+		</script>
+
+
+	    <!-- Fragment shader program -->
+		<script id="per-fragment-lighting-fs" type="x-shader/x-fragment">
+		    precision mediump float;
+
+    		// atributes for setting vertex position, normals and texture coordinates
+		    varying vec2 vTextureCoord;
+		    varying vec3 vTransformedNormal;
+		    varying vec4 vPosition;
+
+		    uniform bool uUseLighting;	// lighting switch
+		    uniform bool uUseTextures;	// textre switch
+
+		    uniform vec3 uAmbientColor;	// ambient color uniform
+
+		    uniform vec3 uPointLightingLocation;	// light direction uniform
+		    uniform vec3 uPointLightingColor;		// light color
+
+			// uniform attribute for setting 2D sampler
+		    uniform sampler2D uSampler;
+
+
+		    void main(void) {
+		        vec3 lightWeighting;
+		        if (!uUseLighting) {
+		            lightWeighting = vec3(1.0, 1.0, 1.0);
+		        } else {
+		        	// transform normals
+		            vec3 lightDirection = normalize(uPointLightingLocation - vPosition.xyz);
+
+		            // calculate weight for directional light
+		            float directionalLightWeighting = max(dot(normalize(vTransformedNormal), lightDirection), 0.0);
+		            // calculate lighting
+		            lightWeighting = uAmbientColor + uPointLightingColor * directionalLightWeighting;
+		        }
+
+		        vec4 fragmentColor;
+		        if (uUseTextures) {
+		            fragmentColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+		        } else {
+		            fragmentColor = vec4(1.0, 1.0, 1.0, 1.0);
+		        }
+		        gl_FragColor = vec4(fragmentColor.rgb * lightWeighting, fragmentColor.a);
+		    }
+		</script>
+
+	    <!-- Vertex shader program -->
+		<script id="per-fragment-lighting-vs" type="x-shader/x-vertex">
+    		// atributes for setting vertex position, normals and texture coordinates
+		    attribute vec3 aVertexPosition;
+		    attribute vec3 aVertexNormal;
+		    attribute vec2 aTextureCoord;
+
+		    uniform mat4 uMVMatrix;	// model-view matrix
+		    uniform mat4 uPMatrix;	// projection matrix
+		    uniform mat3 uNMatrix;	// normal matrix
+
+			// variable for passing texture coordinates and lighting weights
+			// from vertex shader to fragment shader
+		    varying vec2 vTextureCoord;
+		    varying vec3 vTransformedNormal;
+		    varying vec4 vPosition;
+
+
+		    void main(void) {
+		    	// calculate the vertex position
+		        vPosition = uMVMatrix * vec4(aVertexPosition, 1.0);
+		        gl_Position = uPMatrix * vPosition;
+		        vTextureCoord = aTextureCoord;
+		        vTransformedNormal = uNMatrix * aVertexNormal;
+		    }
+		</script>
+
+		<script type="text/javascript">
+			function showValue(id, newValue)
+			{
+				document.getElementById(id+"span").innerHTML = " " + newValue;
+			}
+		</script>
+	</head>
+	<body onload="start()">
+		<h1>WebGL - 13 Per-fragment lighting and multiple programs</h1>
+		<div id="content">
+			<canvas id="glcanvas" width="1280px" height="720px">
+				No <code>&lt;canvas&gt;</code> suppport in your browser.
+			</canvas>
+			<br />
+		    <input hidden type="checkbox" id="lighting" checked /> Use lighting<br/>
+		    <input hidden type="checkbox" id="per-fragment" checked /> Per-fragment lighting<br/>
+		    <input hidden type="checkbox" id="textures" checked /> Use textures<br/>
+		    <br/>
+
+    <br/>
+    <h2>Point light:</h2>
+
+    <table>
+        <tr>
+            <td class="table1st"><b>Point light:</b></td>
+            <td>X: <input type="range" min="-10" max="10" step="0.05" id="lightPositionX" value="0" oninput="showValue(this.id, this.value)" /><span id="lightPositionXspan">0.0</span></td>
+            <td>Y: <input type="range" min="-10" max="10" step="0.05" id="lightPositionY" value="0" oninput="showValue(this.id, this.value)" /><span id="lightPositionYspan">0.0</span></td>
+            <td>Z: <input type="range" min="-20" max="20" step="1" id="lightPositionZ" value="-5" oninput="showValue(this.id, this.value)" /><span id="lightPositionZspan">-5.0</span></td>
+        </tr>
+        <tr>
+            <td><b>Color:</b></td>
+            <td>R: <input type="range" min="0" max="1" step="0.01" id="pointR" value="0.8" oninput="showValue(this.id, this.value)" /><span id="pointRspan">0.8</span></td>
+            <td>G: <input type="range" min="0" max="1" step="0.01" id="pointG" value="0.8" oninput="showValue(this.id, this.value)" /><span id="pointGspan">0.8</span></td>
+            <td>B: <input type="range" min="0" max="1" step="0.01" id="pointB" value="0.8" oninput="showValue(this.id, this.value)" /><span id="pointBspan">0.8</span></td>
+        </tr>
+    </table>
+
+    <h2>Ambient light:</h2>
+    <table>
+        <tr>
+            <td class="table1st"><b>Color:</b></td>
+            <td>R: <input type="range" min="0" max="1" step="0.01" id="ambientR" value="0.2" oninput="showValue(this.id, this.value)" /><span id="ambientRspan">0.2</span></td>
+            <td>G: <input type="range" min="0" max="1" step="0.01" id="ambientG" value="0.2" oninput="showValue(this.id, this.value)" /><span id="ambientGspan">0.2</span></td>
+            <td>B: <input type="range" min="0" max="1" step="0.01" id="ambientB" value="0.2" oninput="showValue(this.id, this.value)" /><span id="ambientBspan">0.2</span></td>
+        </tr>
+    </table>
+			<br />
+			<br />
+		    Moon texture courtesy of <a href="http://maps.jpl.nasa.gov/">the Jet Propulsion Laboratory</a>.
+		    <br/>
+		    <br/>
+			<a href="./"><- Back</a>
+		</div>
+	</body>
+</html>
