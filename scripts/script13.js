@@ -23,6 +23,11 @@ var model1VertexNormalBuffer;
 var model1VertexTexBuffer;
 var model1VertexIndexBuffer;
 
+var zombieVertexPositionBuffer;
+var zombieVertexNormalBuffer;
+var zombieVertexTexBuffer;
+var zombieVertexIndexBuffer;
+
 var playerPosition = [0, 0, 0];
 var playerRadius = 1;
 
@@ -33,16 +38,18 @@ var speedBW = 0.15;
 var speedSide = 0.2;
 
 
-var zombie1Position = [0, 0, 0];
+var zombie1Position = [15, 0, 0];
 var zombie1Rotation = 0;
 
-var zombie2Position = [0, 0, 0];
+var zombie2Position = [0, 0, 30];
 var zombie2Rotation = 0;
 
 var zombie3Position = [0, 0, 0];
 var zombie3Rotation = 0;
 
-var zombieSpeed = 0.75;
+var zombieSpeed = 0.05;
+var zombieRadius = 1;
+
 
 var cubePosition = [3.25, 0, 0];
 var cubeRadius = 1;
@@ -51,6 +58,7 @@ var moonPosition = [-15.0, 0, 0];
 var moonRadius = 1;
 
 var hurtAudio = new Audio('./assets/hurt.m4a');
+var deadAudio = new Audio('./assets/ded.m4a');
 
 
 // Model-view and projection matrix and model-view matrix stack
@@ -101,6 +109,10 @@ function mvPopMatrix() {
 
 function degToRad(degrees) {
   return degrees * Math.PI / 180;
+}
+
+function radToDeg(radians) {
+    return radians * 180 / Math.PI;
 }
 
 //
@@ -322,54 +334,106 @@ function loadModel(url, modelLoader) {
   request.send();
 }
 
-var modelVertices;
-var modelNormals;
-var modelIndices;
-var modelTexCoords;
+var model1Vertices;
+var model1Normals;
+var model1Indices;
+var model1TexCoords;
 function handleLoadedModel1(modelData){
-  modelNormals = modelData.meshes[0].normals;
-  modelVertices = modelData.meshes[0].vertices;
-  modelIndices = [].concat.apply([], modelData.meshes[0].faces);
-  modelTexCoords = modelData.meshes[0].texturecoords[0];
+  model1Normals = modelData.meshes[0].normals;
+  model1Vertices = modelData.meshes[0].vertices;
+  model1Indices = [].concat.apply([], modelData.meshes[0].faces);
+  model1TexCoords = modelData.meshes[0].texturecoords[0];
 
-  console.log(modelVertices);
-  console.log(modelIndices);
-  console.log(modelTexCoords);
-  console.log(modelNormals);
+  console.log(model1Vertices);
+  console.log(model1Indices);
+  console.log(model1TexCoords);
+  console.log(model1Normals);
 
-  console.log("Vertex num: "+modelVertices.length);
-  console.log("Normals num: "+modelNormals.length);
-  console.log("Normals num /3: "+modelNormals.length/3);
-  console.log("Textures num: "+modelTexCoords.length);
-  console.log("Indices num: "+modelIndices.length);
+  console.log("Vertex num: "+model1Vertices.length);
+  console.log("Normals num: "+model1Normals.length);
+  console.log("Normals num /3: "+model1Normals.length/3);
+  console.log("Textures num: "+model1TexCoords.length);
+  console.log("Indices num: "+model1Indices.length);
 
   //OD TUKI NAPREJ INICIALIZIRAMO BUFFERJE
   model1VertexPositionBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexPositionBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(modelVertices), gl.STATIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model1Vertices), gl.STATIC_DRAW);
   model1VertexPositionBuffer.itemSize = 3;
-  model1VertexPositionBuffer.numItems = modelVertices.length / 3;
+  model1VertexPositionBuffer.numItems = model1Vertices.length / 3;
 
   model1VertexNormalBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexNormalBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(modelNormals), gl.STATIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model1Normals), gl.STATIC_DRAW);
   model1VertexNormalBuffer.itemSize = 3;
-  model1VertexNormalBuffer.numItems = modelNormals.length / 3;
+  model1VertexNormalBuffer.numItems = model1Normals.length / 3;
 
   model1VertexTexBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexTexBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(modelTexCoords), gl.STATIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model1TexCoords), gl.STATIC_DRAW);
   model1VertexTexBuffer.itemSize = 2;
-  model1VertexTexBuffer.numItems = modelTexCoords.length / 2;
+  model1VertexTexBuffer.numItems = model1TexCoords.length / 2;
 
   model1VertexIndexBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model1VertexIndexBuffer);
-  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(modelIndices), gl.STATIC_DRAW);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(model1Indices), gl.STATIC_DRAW);
   model1VertexIndexBuffer.itemSize = 1;
-  model1VertexIndexBuffer.numItems = modelIndices.length;
+  model1VertexIndexBuffer.numItems = model1Indices.length;
   
   modelsLoaded += 1;
 }
+
+
+var zombieVertices;
+var zombieNormals;
+var zombieIndices;
+var zombieTexCoords;
+function handleLoadedZombie(modelData){
+  zombieNormals = modelData.meshes[0].normals;
+  zombieVertices = modelData.meshes[0].vertices;
+  zombieIndices = [].concat.apply([], modelData.meshes[0].faces);
+  zombieTexCoords = modelData.meshes[0].texturecoords[0];
+
+  console.log(zombieVertices);
+  console.log(zombieIndices);
+  console.log(zombieTexCoords);
+  console.log(zombieNormals);
+
+  console.log("Vertex num: "+zombieVertices.length);
+  console.log("Normals num: "+zombieNormals.length);
+  console.log("Normals num /3: "+zombieNormals.length/3);
+  console.log("Textures num: "+zombieTexCoords.length);
+  console.log("Indices num: "+zombieIndices.length);
+
+  //OD TUKI NAPREJ INICIALIZIRAMO BUFFERJE
+  model1VertexPositionBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexPositionBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model1Vertices), gl.STATIC_DRAW);
+  model1VertexPositionBuffer.itemSize = 3;
+  model1VertexPositionBuffer.numItems = model1Vertices.length / 3;
+
+  model1VertexNormalBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexNormalBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model1Normals), gl.STATIC_DRAW);
+  model1VertexNormalBuffer.itemSize = 3;
+  model1VertexNormalBuffer.numItems = model1Normals.length / 3;
+
+  model1VertexTexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexTexBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model1TexCoords), gl.STATIC_DRAW);
+  model1VertexTexBuffer.itemSize = 2;
+  model1VertexTexBuffer.numItems = model1TexCoords.length / 2;
+
+  model1VertexIndexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model1VertexIndexBuffer);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(model1Indices), gl.STATIC_DRAW);
+  model1VertexIndexBuffer.itemSize = 1;
+  model1VertexIndexBuffer.numItems = model1Indices.length;
+  
+  modelsLoaded += 1;
+}
+
+
 
 //
 // initBuffers
@@ -845,7 +909,7 @@ function handleKeyUp(event) {
 function handleKeys() {
   if (currentlyPressedKeys[87]) {
       //W - player moves forward
-      console.log("Naprej");
+      console.log("player pos: ", playerPosition);
       playerPosition[2] -= Math.cos(degToRad(playerRotation))*speedFW;
       playerPosition[0] -= Math.sin(degToRad(playerRotation))*speedFW;
       if(anyColide()){
@@ -931,6 +995,7 @@ function start() {
     setInterval(function() {
       if (texturesLoaded == numberOfTextures && modelsLoaded == numberOfModels) { // only draw scene and animate when textures are loaded.
         handleKeys();
+        moveZombies();
         requestAnimationFrame(animate);
         drawScene();
       }
@@ -952,8 +1017,63 @@ function coliding(body1, rad1, body2, rad2) {
 }
 
 function anyColide() {
-    console.log("coliding moon ", coliding(playerPosition, playerRadius, moonPosition, moonRadius));
-    console.log("moon distance", dist(playerPosition, moonPosition));
+    //console.log("coliding moon ", coliding(playerPosition, playerRadius, moonPosition, moonRadius));
+    //console.log("moon distance", dist(playerPosition, moonPosition));
     return (coliding(playerPosition, playerRadius, moonPosition, moonRadius) || //collision z luno
             coliding(playerPosition, playerRadius, cubePosition, cubeRadius));  //collision z kocko
+}
+var timer = 0;
+function moveZombies() {
+    //var vecToMoon = [ moonPosition[0] - playerPosition[0], moonPosition[1] - playerPosition[1], moonPosition[2] - playerPosition[2]];
+    //var kotProtiLuni = radToDeg(Math.acos(vec3.dot(vecToMoon, [0, 0, -1])/vec3.length(vecToMoon)));
+    //console.log("vektor proti luni:", vecToMoon, "kot proti luni: ", kotProtiLuni, "playerRotation: ", playerRotation);
+    /*
+    var vecToMoon = [ moonPosition[0] - playerPosition[0], moonPosition[1] - playerPosition[1], moonPosition[2] - playerPosition[2]];
+    var kotProtiLuni = radToDeg(Math.acos(vec3.dot(vecToMoon, [0, 0, -1])/vec3.length(vecToMoon)));
+    playerRotation = kotProtiLuni;
+    var xMul = vecToMoon[0] < 0 ? 1 : -1;
+    var zMul = vecToMoon[2] < 0 ? 1 : -1;
+    playerPosition[0] -= xMul*Math.sin(degToRad(playerRotation))*zombieSpeed;
+    playerPosition[2] -= zMul*Math.cos(degToRad(playerRotation))*zombieSpeed;
+    
+    console.log("vektor proti luni:", vecToMoon, "kot proti luni: ", kotProtiLuni, "playerRotation: ", playerRotation);
+    //console.log("moon distance: ", dist(moonPosition, playerPosition), "moon coliding: ", coliding(moonPosition, moonRadius, playerPosition, playerRadius));
+    //*/
+    
+    var vecToPlayer1 = [-zombie1Position[0] + playerPosition[0], -zombie1Position[1] + playerPosition[1], -zombie1Position[2] + playerPosition[2]];
+    zombie1Rotation = radToDeg(Math.acos(vec3.dot(vecToPlayer1, [0, 0, -1])/vec3.length(vecToPlayer1)));
+    var xMul1 = vecToPlayer1[0] < 0 ? 1 : -1;
+    var zMul1 = vecToPlayer1[2] < 0 ? 1 : -1;
+    zombie1Position[0] -= xMul1 * Math.sin(degToRad(zombie1Rotation))*zombieSpeed;
+    zombie1Position[2] -= zMul1 * Math.cos(degToRad(zombie1Rotation))*zombieSpeed;
+    
+    //console.log("zombie1 distance: ", dist(zombie1Position, playerPosition), "zombie1 coliding: ", coliding(zombie1Position, zombieRadius, playerPosition, playerRadius));
+    //console.log("zombie1 distance: ", dist(zombie1Position, playerPosition), "vecToPlayer1: ", vecToPlayer1);
+    if(timer == 240) {
+      timer = 0;
+      console.log("zombie1 distance: ", dist(zombie1Position, playerPosition), "vecToPlayer1: ", vecToPlayer1, "zombie1 rotation", zombie1Rotation, "zombie position", zombie1Position, "playerPosition", playerPosition);
+    }
+    
+    if(coliding(zombie1Position, zombieRadius, playerPosition, playerRadius)) {
+        hurtAudio.play();
+    }
+    
+    
+    var vecToPlayer2 = [-zombie2Position[0] + playerPosition[0], -zombie2Position[1] + playerPosition[1], -zombie2Position[2] + playerPosition[2]];
+    zombie2Rotation = radToDeg(Math.acos(vec3.dot(vecToPlayer2, [0, 0, -1])/vec3.length(vecToPlayer2)));
+    var xMul2 = vecToPlayer2[0] < 0 ? 1 : -1;
+    var zMul2 = vecToPlayer2[2] < 0 ? 1 : -1;
+    zombie2Position[0] -= xMul2 * Math.sin(degToRad(zombie2Rotation))*zombieSpeed;
+    zombie2Position[2] -= zMul2 * Math.cos(degToRad(zombie2Rotation))*zombieSpeed;
+    
+    
+    var vecToPlayer3 = [-zombie3Position[0] + playerPosition[0], -zombie3Position[1] + playerPosition[1], -zombie3Position[2] + playerPosition[2]];
+    zombie3Rotation = radToDeg(Math.acos(vec3.dot(vecToPlayer3, [0, 0, -1])/vec3.length(vecToPlayer3)));
+    var xMul3 = vecToPlayer3[0] < 0 ? 1 : -1;
+    var zMul3 = vecToPlayer3[2] < 0 ? 1 : -1;
+    zombie3Position[0] -= xMul3 * Math.sin(degToRad(zombie3Rotation))*zombieSpeed;
+    zombie3Position[2] -= zMul3 * Math.cos(degToRad(zombie3Rotation))*zombieSpeed;
+    
+    
+    timer += 1;
 }
