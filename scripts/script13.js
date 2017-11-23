@@ -4,6 +4,33 @@ var gl;
 
 var gameOver = false;
 
+// Menu Variables
+var mainMenu;
+var pauseMenu;
+var gameOverMenu;
+
+
+//Pause/play trigger
+var playTime = false;
+var pauseShow = false;
+
+
+function startGame() {
+  canvas.style.visibility='visible';
+  mainMenu.style.visibility = 'hidden';
+  playTime = true;
+  pauseShow = true;
+
+
+}
+
+function resumeGame() {
+  playTime = true;
+  pauseMenu.style.visibility = 'hidden';
+  canvas.style.visibility='visible';
+
+}
+
 // shading programs
 var currentProgram;
 var perVertexProgram;
@@ -390,7 +417,7 @@ function handleLoadedModel1(modelData){
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(model1Indices), gl.STATIC_DRAW);
   model1VertexIndexBuffer.itemSize = 1;
   model1VertexIndexBuffer.numItems = model1Indices.length;
-  
+
   modelsLoaded += 1;
 }
 
@@ -440,7 +467,7 @@ function handleLoadedZombie(modelData){
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(model1Indices), gl.STATIC_DRAW);
   model1VertexIndexBuffer.itemSize = 1;
   model1VertexIndexBuffer.numItems = model1Indices.length;
-  
+
   modelsLoaded += 1;
 }
 
@@ -618,7 +645,7 @@ function initBuffers() {
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
   cubeVertexIndexBuffer.itemSize = 1;
   cubeVertexIndexBuffer.numItems = 36;
-  
+
   modelsLoaded += 1;
 
   // SPHERE
@@ -698,7 +725,7 @@ function initBuffers() {
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexData), gl.STREAM_DRAW);
   moonVertexIndexBuffer.itemSize = 1;
   moonVertexIndexBuffer.numItems = indexData.length;
-  
+
   modelsLoaded += 1;
 }
 
@@ -844,10 +871,10 @@ function drawScene() {
   ///////////////////////////////////draw warrior
   mvPushMatrix();
   mat4.translate(mvMatrix, playerPosition);
-  
+
   mat4.rotate(mvMatrix, degToRad(180), [0, 1, 0]);//popravki, da je pravilno obrnjen in na tleh
   mat4.translate(mvMatrix, [0, -1, 0]);
-  
+
   mat4.rotate(mvMatrix, degToRad(playerRotation), [0, 1, 0]);
   //mat4.rotate(mvMatrix, degToRad(cubeAngle), [0, 1, 0]);
   //mat4.translate(mvMatrix, [1.25, 0, 4]);
@@ -876,18 +903,18 @@ function drawScene() {
 
   // restore last location
   mvPopMatrix();
-  
-  
-  
-  
+
+
+
+
   /////////////////////zombies
   //1
   mvPushMatrix();
   mat4.translate(mvMatrix, zombie1Position);
-  
+
   mat4.rotate(mvMatrix, degToRad(180), [0, 1, 0]);//popravki, da je pravilno obrnjen in na tleh
   mat4.translate(mvMatrix, [0, -1, 0]);
-  
+
   mat4.rotate(mvMatrix, degToRad(zombie1Rotation), [0, 1, 0]);
   //mat4.rotate(mvMatrix, degToRad(cubeAngle), [0, 1, 0]);
   //mat4.translate(mvMatrix, [1.25, 0, 4]);
@@ -916,14 +943,14 @@ function drawScene() {
 
   // restore last location
   mvPopMatrix();
-  
+
   //2
   mvPushMatrix();
   mat4.translate(mvMatrix, zombie2Position);
-  
+
   mat4.rotate(mvMatrix, degToRad(180), [0, 1, 0]);//popravki, da je pravilno obrnjen in na tleh
   mat4.translate(mvMatrix, [0, -1, 0]);
-  
+
   mat4.rotate(mvMatrix, degToRad(zombie2Rotation), [0, 1, 0]);
   //mat4.rotate(mvMatrix, degToRad(cubeAngle), [0, 1, 0]);
   //mat4.translate(mvMatrix, [1.25, 0, 4]);
@@ -952,14 +979,14 @@ function drawScene() {
 
   // restore last location
   mvPopMatrix();
-  
+
   //3
   mvPushMatrix();
   mat4.translate(mvMatrix, zombie3Position);
-  
+
   mat4.rotate(mvMatrix, degToRad(180), [0, 1, 0]);//popravki, da je pravilno obrnjen in na tleh
   mat4.translate(mvMatrix, [0, -1, 0]);
-  
+
   mat4.rotate(mvMatrix, degToRad(zombie3Rotation), [0, 1, 0]);
   //mat4.rotate(mvMatrix, degToRad(cubeAngle), [0, 1, 0]);
   //mat4.translate(mvMatrix, [1.25, 0, 4]);
@@ -1011,12 +1038,12 @@ function animate() {
 function handleKeyDown(event) {
   // storing the pressed state for individual key
   currentlyPressedKeys[event.keyCode] = true;
-  
+
   if(event.keyCode == 32) {
     event.preventDefault();
   }
-  
-  
+
+
   //handleKeys();
 
 }
@@ -1036,88 +1063,114 @@ function handleKeyUp(event) {
 // input handling. Function continuisly updates helper variables.
 //
 function handleKeys() {
-  if (currentlyPressedKeys[87]) {
-      //W - player moves forward
-      //console.log("player pos: ", playerPosition);
-      playerPosition[2] -= Math.cos(degToRad(playerRotation))*speedFW;
-      playerPosition[0] -= Math.sin(degToRad(playerRotation))*speedFW;
-      if(anyColide()){
-          hurtAudio.play();
-          playerPosition[2] += Math.cos(degToRad(playerRotation))*speedFW;
-          playerPosition[0] += Math.sin(degToRad(playerRotation))*speedFW;
+    if(playTime){
+      if (currentlyPressedKeys[87]) {
+          //W - player moves forward
+          //console.log("player pos: ", playerPosition);
+          playerPosition[2] -= Math.cos(degToRad(playerRotation))*speedFW;
+          playerPosition[0] -= Math.sin(degToRad(playerRotation))*speedFW;
+          if(anyColide()){
+              hurtAudio.play();
+              playerPosition[2] += Math.cos(degToRad(playerRotation))*speedFW;
+              playerPosition[0] += Math.sin(degToRad(playerRotation))*speedFW;
+          }
       }
-  }
-  if (currentlyPressedKeys[83]) {
-      //S - player moves backward
-      playerPosition[2] += Math.cos(degToRad(playerRotation))*speedBW;
-      playerPosition[0] += Math.sin(degToRad(playerRotation))*speedBW;
-      if(anyColide()){
-          playerPosition[2] -= Math.cos(degToRad(playerRotation))*speedBW;
-          playerPosition[0] -= Math.sin(degToRad(playerRotation))*speedBW;
+      if (currentlyPressedKeys[83]) {
+          //S - player moves backward
+          playerPosition[2] += Math.cos(degToRad(playerRotation))*speedBW;
+          playerPosition[0] += Math.sin(degToRad(playerRotation))*speedBW;
+          if(anyColide()){
+              playerPosition[2] -= Math.cos(degToRad(playerRotation))*speedBW;
+              playerPosition[0] -= Math.sin(degToRad(playerRotation))*speedBW;
+          }
       }
-  }
-  if (currentlyPressedKeys[81]) {
-      //Q - player moves Left
-      playerPosition[2] -= Math.cos(degToRad(playerRotation + 90))*speedSide;
-      playerPosition[0] -= Math.sin(degToRad(playerRotation + 90))*speedSide;
-      if(anyColide()){
-          playerPosition[2] += Math.cos(degToRad(playerRotation + 90))*speedSide;
-          playerPosition[0] += Math.sin(degToRad(playerRotation + 90))*speedSide;
-      }
-  }
-  if (currentlyPressedKeys[69]) {
-      //E - player moves right
-      playerPosition[2] += Math.cos(degToRad(playerRotation + 90))*speedSide;
-      playerPosition[0] += Math.sin(degToRad(playerRotation + 90))*speedSide;
-      if(anyColide()){
+      if (currentlyPressedKeys[81]) {
+          //Q - player moves Left
           playerPosition[2] -= Math.cos(degToRad(playerRotation + 90))*speedSide;
           playerPosition[0] -= Math.sin(degToRad(playerRotation + 90))*speedSide;
+          if(anyColide()){
+              playerPosition[2] += Math.cos(degToRad(playerRotation + 90))*speedSide;
+              playerPosition[0] += Math.sin(degToRad(playerRotation + 90))*speedSide;
+          }
+      }
+      if (currentlyPressedKeys[69]) {
+          //E - player moves right
+          playerPosition[2] += Math.cos(degToRad(playerRotation + 90))*speedSide;
+          playerPosition[0] += Math.sin(degToRad(playerRotation + 90))*speedSide;
+          if(anyColide()){
+              playerPosition[2] -= Math.cos(degToRad(playerRotation + 90))*speedSide;
+              playerPosition[0] -= Math.sin(degToRad(playerRotation + 90))*speedSide;
+          }
+
+      }
+      if (currentlyPressedKeys[68]) {
+          //D - player rotates right
+          playerRotation -= 2.5;
       }
 
+      if (currentlyPressedKeys[65]) {
+          //A - player rotates left
+          playerRotation += 2.5;
+      }
+
+      if(currentlyPressedKeys[32] && playerAttackCooldown == 0) {
+        playerAttackCooldown = 120;
+        if(coliding(playerPosition, playerRadius + playerAttackRange, zombie1Position, zombieRadius)) {
+          hurtZombie1(1, zombieHurtAudio);
+
+            console.log("zombie1health: ", zombie3Health);
+          if(zombie1Health <= 0) {
+            zombie1Health = 10;
+            zombie1Position[0] = playerPosition[0] -Math.sin(degToRad(playerRotation))*(Math.random()*15);
+            zombie1Position[2] = playerPosition[2] -Math.cos(degToRad(playerRotation))*(Math.random()*15);
+          }
+        }
+        if(coliding(playerPosition, playerRadius + playerAttackRange, zombie2Position, zombieRadius)) {
+          hurtZombie2(1, zombieHurtAudio);
+
+            console.log("zombie2health: ", zombie3Health);
+          if(zombie2Health <= 0) {
+
+            zombie2Health = 10;
+            zombie2Position[0] = playerPosition[0] -Math.sin(degToRad(playerRotation))*(Math.random()*15);
+            zombie2Position[2] = playerPosition[2] -Math.cos(degToRad(playerRotation))*(Math.random()*5+15);
+          }
+        }
+        if(coliding(playerPosition, playerRadius + playerAttackRange, zombie3Position, zombieRadius)) {
+          hurtZombie3(1, zombieHurtAudio);
+          console.log("zombie3health: ", zombie3Health);
+          if(zombie3Health <= 0) {
+            zombie3Health = 10;
+            zombie3Position[0] = playerPosition[0] -Math.sin(degToRad(playerRotation))*(Math.random()*5+15);
+            zombie3Position[2] = playerPosition[2] -Math.cos(degToRad(playerRotation))*(Math.random()*5+15);
+          }
+        }
+      }
   }
-  if (currentlyPressedKeys[68]) {
-      //D - player rotates right
-      playerRotation -= 2.5;
+  if(currentlyPressedKeys[27]) {
+      if(playTime) {
+        playTime = false;
+        canvas.style.visibility='hidden';
+
+        if(pauseShow) {
+          pauseMenu.style.visibility = 'visible';
+
+        }
+
+      } else {
+        playTime = true;
+        canvas.style.visibility='visible';
+        pauseMenu.style.visibility = 'hidden';
+
+
+      }
+
+
   }
 
-  if (currentlyPressedKeys[65]) {
-      //A - player rotates left
-      playerRotation += 2.5;
-  }
-  
-  if(currentlyPressedKeys[32] && playerAttackCooldown == 0) {
-    playerAttackCooldown = 120;
-    if(coliding(playerPosition, playerRadius + playerAttackRange, zombie1Position, zombieRadius)) {
-      hurtZombie1(1, zombieHurtAudio);
-      
-        console.log("zombie1health: ", zombie3Health);
-      if(zombie1Health <= 0) {
-        zombie1Health = 10;
-        zombie1Position[0] = playerPosition[0] -Math.sin(degToRad(playerRotation))*(Math.random()*15);
-        zombie1Position[2] = playerPosition[2] -Math.cos(degToRad(playerRotation))*(Math.random()*15);
-      }
-    }
-    if(coliding(playerPosition, playerRadius + playerAttackRange, zombie2Position, zombieRadius)) {
-      hurtZombie2(1, zombieHurtAudio);
-      
-        console.log("zombie2health: ", zombie3Health);
-      if(zombie2Health <= 0) {
-        
-        zombie2Health = 10;
-        zombie2Position[0] = playerPosition[0] -Math.sin(degToRad(playerRotation))*(Math.random()*15);
-        zombie2Position[2] = playerPosition[2] -Math.cos(degToRad(playerRotation))*(Math.random()*5+15);
-      }
-    }
-    if(coliding(playerPosition, playerRadius + playerAttackRange, zombie3Position, zombieRadius)) {
-      hurtZombie3(1, zombieHurtAudio);
-      console.log("zombie3health: ", zombie3Health);
-      if(zombie3Health <= 0) {
-        zombie3Health = 10;
-        zombie3Position[0] = playerPosition[0] -Math.sin(degToRad(playerRotation))*(Math.random()*5+15);
-        zombie3Position[2] = playerPosition[2] -Math.cos(degToRad(playerRotation))*(Math.random()*5+15);
-      }
-    }
-  }
+
+
+
 }
 
 
@@ -1128,7 +1181,14 @@ function handleKeys() {
 // Figuratively, that is. There's nothing moving in this demo.
 //
 function start() {
-  canvas = document.getElementById("glcanvas");
+    canvas = document.getElementById("glcanvas");
+    mainMenu = document.getElementById("mainMenu");
+    pauseMenu = document.getElementById("pauseMenu");
+    gameOverMenu = document.getElementById("gameOver");
+
+    canvas.style.visibility ='hidden';
+    pauseMenu.style.visibility = 'hidden';
+    gameOverMenu.style.visibility = 'hidden';
 
   gl = initGL(canvas);      // Initialize the GL context
 
@@ -1156,7 +1216,7 @@ function start() {
 
     // Set up to draw the scene periodically.
     setInterval(function() {
-      if (texturesLoaded == numberOfTextures && modelsLoaded == numberOfModels && !gameOver) { // only draw scene and animate when textures are loaded.
+      if (texturesLoaded == numberOfTextures && modelsLoaded == numberOfModels && !gameOver && playTime) { // only draw scene and animate when textures are loaded.
         if(playerHurtTimeout > 0) {
           playerHurtTimeout -= 1;
         }
@@ -1197,44 +1257,44 @@ function anyColide() {
 }
 var timer = 0;
 function moveZombies() {
-    
+
     var vecToPlayer1 = [-zombie1Position[0] + playerPosition[0], -zombie1Position[1] + playerPosition[1], -zombie1Position[2] + playerPosition[2]];
     zombie1Rotation = radToDeg(Math.acos(vec3.dot(vecToPlayer1, [0, 0, -1])/vec3.length(vecToPlayer1)));
     var xMul1 = vecToPlayer1[0] < 0 ? 1 : -1;
     var zMul1 = vecToPlayer1[2] < 0 ? 1 : -1;
     zombie1Position[0] -= xMul1 * Math.abs(Math.sin(degToRad(zombie1Rotation)))*zombieSpeed;
     zombie1Position[2] -= zMul1 * Math.abs(Math.cos(degToRad(zombie1Rotation)))*zombieSpeed;
-    
+
     if(coliding(zombie1Position, zombieRadius, playerPosition, playerRadius) && playerHurtTimeout == 0) {
         hurtPlayer(1, hurtAudio);
         playerHurtTimeout = 180;
     }
-    
-    
+
+
     var vecToPlayer2 = [-zombie2Position[0] + playerPosition[0], -zombie2Position[1] + playerPosition[1], -zombie2Position[2] + playerPosition[2]];
     zombie2Rotation = radToDeg(Math.acos(vec3.dot(vecToPlayer2, [0, 0, -1])/vec3.length(vecToPlayer2)));
     var xMul2 = vecToPlayer2[0] < 0 ? 1 : -1;
     var zMul2 = vecToPlayer2[2] < 0 ? 1 : -1;
     zombie2Position[0] -= xMul2 * Math.abs(Math.sin(degToRad(zombie2Rotation)))*zombieSpeed;
     zombie2Position[2] -= zMul2 * Math.abs(Math.cos(degToRad(zombie2Rotation)))*zombieSpeed;
-    
+
     if(coliding(zombie2Position, zombieRadius, playerPosition, playerRadius) && playerHurtTimeout == 0) {
         hurtPlayer(1, hurtAudio);
         playerHurtTimeout = 180;
     }
-    
+
     var vecToPlayer3 = [-zombie3Position[0] + playerPosition[0], -zombie3Position[1] + playerPosition[1], -zombie3Position[2] + playerPosition[2]];
     zombie3Rotation = radToDeg(Math.acos(vec3.dot(vecToPlayer3, [0, 0, -1])/vec3.length(vecToPlayer3)));
     var xMul3 = vecToPlayer3[0] < 0 ? 1 : -1;
     var zMul3 = vecToPlayer3[2] < 0 ? 1 : -1;
     zombie3Position[0] -= xMul3 * Math.abs(Math.sin(degToRad(zombie3Rotation)))*zombieSpeed;
     zombie3Position[2] -= zMul3 * Math.abs(Math.cos(degToRad(zombie3Rotation)))*zombieSpeed;
-    
+
     if(coliding(zombie3Position, zombieRadius, playerPosition, playerRadius) && playerHurtTimeout == 0) {
         hurtPlayer(1, hurtAudio);
         playerHurtTimeout = 180;
     }
-    
+
     timer += 1;
 }
 /**
@@ -1265,32 +1325,32 @@ function hurtZombie3(dmg, sound) {
 
 function restartGame() {
   playerPosition = [0, 0, 0];
-  
+
   playerHealth = 6;
   playerHurtTimeout = 0;
-  
+
   playerRotation = 0;
-  
-  
-  
+
+
+
   zombie1Position = [15, 0, 0];
   zombie1Rotation = 0;
   zombie1Health = 10;
-  
+
   zombie2Position = [0, 0, 30];
   zombie2Rotation = 0;
   zombie2Health = 10;
-  
+
   zombie3Position = [0, 0, 0];
   zombie3Rotation = 0;
   zombie3Health = 10;
-  
-  
-  
+
+
+
   cubePosition = [3.25, 0, 0];
-  
+
   moonPosition = [-15.0, 0, 0];
-  
+
   gameOver = false;
-  
+
 }

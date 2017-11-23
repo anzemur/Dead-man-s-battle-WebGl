@@ -161,12 +161,47 @@
 		</script>
 	</head>
 	<body onload="start()">
-		<h1>Dead man's battle</h1>
 		<div id="content">
-			<canvas id="glcanvas" width="1280px" height="720px">
+			<canvas id="glcanvas" width="1280px" height="720px" style="width:100%; height:100%">
+				
+				
 				No <code>&lt;canvas&gt;</code> suppport in your browser.
 			</canvas>
-			<br />
+			<br/>
+			<br/>
+			
+			
+			<div id="mainMenu" style="position: absolute; left: 0px; top: 0px; width:100%; height:100%; background-color: black;"> </style>
+				<br>
+				<img src="./logos_and_buttons/logo_final.png"></img>
+				</br>
+				<button id="startButton" onClick="startGame()" style="background:black"><img src=./logos_and_buttons/button_start_game.png></button>
+			</div>
+			
+			<div id="pauseMenu" style="position: absolute; left: 0px; top: 0px; width:100%; height:100%; background-color: black;"> </style>
+				<br><br>
+				<img src="./logos_and_buttons/pause_logo.png"></img>
+				</br>
+				<button onClick="resumeGame()" style="background:black"><img src=./logos_and_buttons/button_resume.png></button>
+				</br>
+				<br>
+				<button onClick="" style="background:black"><img src=./logos_and_buttons/button_restart.png></button>
+				
+			
+			</div>
+			
+				<div id="gameOver" style="position: absolute; left: 0px; top: 0px; width:100%; height:100%; background-color: black;"> </style>
+				<img src="./logos_and_buttons/game_over_logo.png"></img>
+				</br>
+				<br>	<br>	<br>
+				<button id="startButton" onClick="restartGame()" style="background:black"><img src=./logos_and_buttons/button_restart.png></button>
+			</div>
+			
+			
+			
+			
+			
+			
 		    <input hidden type="checkbox" id="lighting" checked /> <!--Use lighting--><br/>
 		    <input hidden type="checkbox" id="per-fragment" checked /> <!--Per-fragment lighting--><br/>
 		    <input hidden type="checkbox" id="textures" checked /> <!--Use textures--><br/>
