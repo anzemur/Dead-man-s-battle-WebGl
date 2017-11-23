@@ -32,11 +32,25 @@ var speedFW = 0.3;
 var speedBW = 0.15;
 var speedSide = 0.2;
 
+
+var zombie1Position = [0, 0, 0];
+var zombie1Rotation = 0;
+
+var zombie2Position = [0, 0, 0];
+var zombie2Rotation = 0;
+
+var zombie3Position = [0, 0, 0];
+var zombie3Rotation = 0;
+
+var zombieSpeed = 0.75;
+
 var cubePosition = [3.25, 0, 0];
 var cubeRadius = 1;
 
 var moonPosition = [-15.0, 0, 0];
 var moonRadius = 1;
+
+var hurtAudio = new Audio('./assets/hurt.m4a');
 
 
 // Model-view and projection matrix and model-view matrix stack
@@ -52,6 +66,9 @@ var testBarvaTexture;
 // Variable that stores  loading state of textures.
 var numberOfTextures = 3;
 var texturesLoaded = 0;
+
+var numberOfModels = 3;
+var modelsLoaded = 0;
 
 // Mouse helper variables
 var moonAngle = 180;
@@ -350,6 +367,8 @@ function handleLoadedModel1(modelData){
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(modelIndices), gl.STATIC_DRAW);
   model1VertexIndexBuffer.itemSize = 1;
   model1VertexIndexBuffer.numItems = modelIndices.length;
+  
+  modelsLoaded += 1;
 }
 
 //
@@ -524,6 +543,8 @@ function initBuffers() {
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
   cubeVertexIndexBuffer.itemSize = 1;
   cubeVertexIndexBuffer.numItems = 36;
+  
+  modelsLoaded += 1;
 
   // SPHERE
   var latitudeBands = 30;
@@ -602,6 +623,8 @@ function initBuffers() {
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexData), gl.STREAM_DRAW);
   moonVertexIndexBuffer.itemSize = 1;
   moonVertexIndexBuffer.numItems = indexData.length;
+  
+  modelsLoaded += 1;
 }
 
 //
@@ -746,6 +769,10 @@ function drawScene() {
   ///////////////////////////////////draw test sphere
   mvPushMatrix();
   mat4.translate(mvMatrix, playerPosition);
+  
+  mat4.rotate(mvMatrix, degToRad(180), [0, 1, 0]);//popravki, da je pravilno obrnjen in na tleh
+  mat4.translate(mvMatrix, [0, -1, 0]);
+  
   mat4.rotate(mvMatrix, degToRad(playerRotation), [0, 1, 0]);
   //mat4.rotate(mvMatrix, degToRad(cubeAngle), [0, 1, 0]);
   //mat4.translate(mvMatrix, [1.25, 0, 4]);
@@ -797,7 +824,7 @@ function animate() {
 function handleKeyDown(event) {
   // storing the pressed state for individual key
   currentlyPressedKeys[event.keyCode] = true;
-  handleKeys();
+  //handleKeys();
 
 }
 
@@ -806,7 +833,7 @@ function handleKeyDown(event) {
 function handleKeyUp(event) {
   // reseting the pressed state for individual key
   currentlyPressedKeys[event.keyCode] = false;
-  handleKeys();
+  //handleKeys();
 }
 
 //
@@ -822,6 +849,7 @@ function handleKeys() {
       playerPosition[2] -= Math.cos(degToRad(playerRotation))*speedFW;
       playerPosition[0] -= Math.sin(degToRad(playerRotation))*speedFW;
       if(anyColide()){
+          hurtAudio.play();
           playerPosition[2] += Math.cos(degToRad(playerRotation))*speedFW;
           playerPosition[0] += Math.sin(degToRad(playerRotation))*speedFW;
       }
@@ -837,20 +865,20 @@ function handleKeys() {
   }
   if (currentlyPressedKeys[81]) {
       //Q - player moves Left
-      playerPosition[2] -= Math.sin(degToRad(playerRotation))*speedSide;
-      playerPosition[0] -= Math.cos(degToRad(playerRotation))*speedSide;
+      playerPosition[2] -= Math.cos(degToRad(playerRotation + 90))*speedSide;
+      playerPosition[0] -= Math.sin(degToRad(playerRotation + 90))*speedSide;
       if(anyColide()){
-          playerPosition[2] += Math.sin(degToRad(playerRotation))*speedSide;
-          playerPosition[0] += Math.cos(degToRad(playerRotation))*speedSide;
+          playerPosition[2] += Math.cos(degToRad(playerRotation + 90))*speedSide;
+          playerPosition[0] += Math.sin(degToRad(playerRotation + 90))*speedSide;
       }
   }
   if (currentlyPressedKeys[69]) {
       //E - player moves right
-      playerPosition[2] += Math.sin(degToRad(playerRotation))*speedSide;
-      playerPosition[0] += Math.cos(degToRad(playerRotation))*speedSide;
+      playerPosition[2] += Math.cos(degToRad(playerRotation + 90))*speedSide;
+      playerPosition[0] += Math.sin(degToRad(playerRotation + 90))*speedSide;
       if(anyColide()){
-          playerPosition[2] -= Math.sin(degToRad(playerRotation))*speedSide;
-          playerPosition[0] -= Math.cos(degToRad(playerRotation))*speedSide;
+          playerPosition[2] -= Math.cos(degToRad(playerRotation + 90))*speedSide;
+          playerPosition[0] -= Math.sin(degToRad(playerRotation + 90))*speedSide;
       }
 
   }
@@ -901,7 +929,8 @@ function start() {
 
     // Set up to draw the scene periodically.
     setInterval(function() {
-      if (texturesLoaded == numberOfTextures) { // only draw scene and animate when textures are loaded.
+      if (texturesLoaded == numberOfTextures && modelsLoaded == numberOfModels) { // only draw scene and animate when textures are loaded.
+        handleKeys();
         requestAnimationFrame(animate);
         drawScene();
       }
