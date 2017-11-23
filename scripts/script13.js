@@ -35,8 +35,8 @@ var playerRadius = 1;
 
 var playerHealth = 6;
 var playerHurtTimeout = 0;
-var playerAttackRange = 2;
-var playerAttackCooldown = 120;
+var playerAttackRange = 7;
+var playerAttackCooldown = 0;
 
 var playerRotation = 0;
 
@@ -1086,31 +1086,35 @@ function handleKeys() {
   }
   
   if(currentlyPressedKeys[32] && playerAttackCooldown == 0) {
+    playerAttackCooldown = 120;
     if(coliding(playerPosition, playerRadius + playerAttackRange, zombie1Position, zombieRadius)) {
       hurtZombie1(1, zombieHurtAudio);
-      if(zombie1Health <= 0) {
+      
         console.log("zombie1health: ", zombie3Health);
+      if(zombie1Health <= 0) {
         zombie1Health = 10;
-        zombie1Position[0] = playerPosition[0] -Math.sin(degToRad(playerRotation))*Math.random()*5+15;
-        zombie1Position[2] = playerPosition[2] -Math.cos(degToRad(playerRotation))*Math.random()*5+15;
+        zombie1Position[0] = playerPosition[0] -Math.sin(degToRad(playerRotation))*(Math.random()*15);
+        zombie1Position[2] = playerPosition[2] -Math.cos(degToRad(playerRotation))*(Math.random()*15);
       }
     }
     if(coliding(playerPosition, playerRadius + playerAttackRange, zombie2Position, zombieRadius)) {
       hurtZombie2(1, zombieHurtAudio);
-      if(zombie2Health <= 0) {
+      
         console.log("zombie2health: ", zombie3Health);
+      if(zombie2Health <= 0) {
+        
         zombie2Health = 10;
-        zombie2Position[0] = playerPosition[0] -Math.sin(degToRad(playerRotation))*Math.random()*5+15;
-        zombie2Position[2] = playerPosition[2] -Math.cos(degToRad(playerRotation))*Math.random()*5+15;
+        zombie2Position[0] = playerPosition[0] -Math.sin(degToRad(playerRotation))*(Math.random()*15);
+        zombie2Position[2] = playerPosition[2] -Math.cos(degToRad(playerRotation))*(Math.random()*5+15);
       }
     }
     if(coliding(playerPosition, playerRadius + playerAttackRange, zombie3Position, zombieRadius)) {
       hurtZombie3(1, zombieHurtAudio);
+      console.log("zombie3health: ", zombie3Health);
       if(zombie3Health <= 0) {
-        console.log("zombie3health: ", zombie3Health);
         zombie3Health = 10;
-        zombie3Position[0] = playerPosition[0] -Math.sin(degToRad(playerRotation))*Math.random()*5+15;
-        zombie3Position[2] = playerPosition[2] -Math.cos(degToRad(playerRotation))*Math.random()*5+15;
+        zombie3Position[0] = playerPosition[0] -Math.sin(degToRad(playerRotation))*(Math.random()*5+15);
+        zombie3Position[2] = playerPosition[2] -Math.cos(degToRad(playerRotation))*(Math.random()*5+15);
       }
     }
   }
