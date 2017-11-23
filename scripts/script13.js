@@ -23,15 +23,20 @@ var model1VertexNormalBuffer;
 var model1VertexTexBuffer;
 var model1VertexIndexBuffer;
 
-var playerX = 0;
-var playerY = 0;
-var playerZ = 0;
+var playerPosition = [0, 0, 0];
+var playerRadius = 1;
 
 var playerRotation = 0;
 
 var speedFW = 0.3;
 var speedBW = 0.15;
 var speedSide = 0.2;
+
+var cubePosition = [3.25, 0, 0];
+var cubeRadius = 1;
+
+var moonPosition = [-15.0, 0, 0];
+var moonRadius = 1;
 
 
 // Model-view and projection matrix and model-view matrix stack
@@ -670,14 +675,15 @@ function drawScene() {
   mat4.translate(mvMatrix, [0, -4, -14]);
   mat4.rotate(mvMatrix, -degToRad(playerRotation), [0, 1, 0]);
   
-  mat4.translate(mvMatrix, [-playerX, 0, -playerZ]);
+  mat4.translate(mvMatrix, [-playerPosition[0], -playerPosition[1], -playerPosition[2]]);
+  //console.log("-playerPosition: ", -playerPosition[0], -playerPosition[1], -playerPosition[2]);
   // store current location
   mvPushMatrix();
 
   // Now move the drawing position a bit to where we want to start
   // drawing the world.
   mat4.rotate(mvMatrix, degToRad(moonAngle), [0, 1, 0]);
-  mat4.translate(mvMatrix, [2, 0, 0]);
+  mat4.translate(mvMatrix, moonPosition);
 
   // Activate textures
   gl.activeTexture(gl.TEXTURE0);
@@ -709,7 +715,7 @@ function drawScene() {
   // store current location
   mvPushMatrix();
   mat4.rotate(mvMatrix, degToRad(cubeAngle), [0, 1, 0]);
-  mat4.translate(mvMatrix, [1.25, 0, 0]);
+  mat4.translate(mvMatrix, cubePosition);
 
   // Set the vertex positions attribute for the crate vertices.
   gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer);
@@ -739,7 +745,7 @@ function drawScene() {
   
   ///////////////////////////////////draw test sphere
   mvPushMatrix();
-  mat4.translate(mvMatrix, [playerX, 0, playerZ]);
+  mat4.translate(mvMatrix, playerPosition);
   mat4.rotate(mvMatrix, degToRad(playerRotation), [0, 1, 0]);
   //mat4.rotate(mvMatrix, degToRad(cubeAngle), [0, 1, 0]);
   //mat4.translate(mvMatrix, [1.25, 0, 4]);
@@ -813,23 +819,39 @@ function handleKeys() {
   if (currentlyPressedKeys[87]) {
       //W - player moves forward
       console.log("Naprej");
-      playerZ -= Math.cos(degToRad(playerRotation))*speedFW;
-      playerX -= Math.sin(degToRad(playerRotation))*speedFW;
+      playerPosition[2] -= Math.cos(degToRad(playerRotation))*speedFW;
+      playerPosition[0] -= Math.sin(degToRad(playerRotation))*speedFW;
+      if(anyColide()){
+          playerPosition[2] += Math.cos(degToRad(playerRotation))*speedFW;
+          playerPosition[0] += Math.sin(degToRad(playerRotation))*speedFW;
+      }
   }
   if (currentlyPressedKeys[83]) {
       //S - player moves backward
-      playerZ += Math.cos(degToRad(playerRotation))*speedBW;
-      playerX += Math.sin(degToRad(playerRotation))*speedBW;
+      playerPosition[2] += Math.cos(degToRad(playerRotation))*speedBW;
+      playerPosition[0] += Math.sin(degToRad(playerRotation))*speedBW;
+      if(anyColide()){
+          playerPosition[2] -= Math.cos(degToRad(playerRotation))*speedBW;
+          playerPosition[0] -= Math.sin(degToRad(playerRotation))*speedBW;
+      }
   }
   if (currentlyPressedKeys[81]) {
       //Q - player moves Left
-      playerZ -= Math.sin(degToRad(playerRotation))*speedSide;
-      playerX -= Math.cos(degToRad(playerRotation))*speedSide;
+      playerPosition[2] -= Math.sin(degToRad(playerRotation))*speedSide;
+      playerPosition[0] -= Math.cos(degToRad(playerRotation))*speedSide;
+      if(anyColide()){
+          playerPosition[2] += Math.sin(degToRad(playerRotation))*speedSide;
+          playerPosition[0] += Math.cos(degToRad(playerRotation))*speedSide;
+      }
   }
   if (currentlyPressedKeys[69]) {
       //E - player moves right
-      playerZ += Math.sin(degToRad(playerRotation))*speedSide;
-      playerX += Math.cos(degToRad(playerRotation))*speedSide;
+      playerPosition[2] += Math.sin(degToRad(playerRotation))*speedSide;
+      playerPosition[0] += Math.cos(degToRad(playerRotation))*speedSide;
+      if(anyColide()){
+          playerPosition[2] -= Math.sin(degToRad(playerRotation))*speedSide;
+          playerPosition[0] -= Math.cos(degToRad(playerRotation))*speedSide;
+      }
 
   }
   if (currentlyPressedKeys[68]) {
@@ -885,4 +907,22 @@ function start() {
       }
     }, 15);
   }
+}
+
+function dist(body1, body2) {
+    return Math.sqrt(Math.pow(body1[0] - body2[0], 2) + Math.pow(body1[1] - body2[1], 2) + Math.pow(body1[2] - body2[2], 2));
+}
+
+function coliding(body1, rad1, body2, rad2) {
+    var distance = dist(body1, body2);
+    if(rad1+rad2 >= distance) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function anyColide() {
+    return (coliding(playerPosition, playerRadius, moonPosition, moonRadius) || //collision z luno
+            coliding(playerPosition, playerRadius, cubePosition, cubeRadius));  //collision z kocko
 }
