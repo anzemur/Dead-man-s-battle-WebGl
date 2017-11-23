@@ -80,7 +80,7 @@ var zombie2Position = [0, 0, 30];
 var zombie2Rotation = 0;
 var zombie2Health = 10;
 
-var zombie3Position = [0, 0, 0];
+var zombie3Position = [0, 0, -7];
 var zombie3Rotation = 0;
 var zombie3Health = 10;
 
@@ -95,8 +95,12 @@ var moonPosition = [-15.0, 0, 0];
 var moonRadius = 1;
 
 var hurtAudio = new Audio('./assets/hurt.m4a');
+//console.log("hurt volume: ", hurtAudio.volume);
 var deadAudio = new Audio('./assets/ded.m4a');
-var zombieHurtAudio = new Audio('./assets/zombieHurt.m4a')
+//console.log("dead volume: ", deadAudio.volume);
+var zombieHurtAudio = new Audio('./assets/zombieHurt.m4a');
+zombieHurtAudio.volume = 0.5;
+//console.log("zombie hurt volume: ", zombieHurtAudio.volume);
 
 
 // Model-view and projection matrix and model-view matrix stack
@@ -1070,7 +1074,7 @@ function handleKeys() {
           playerPosition[2] -= Math.cos(degToRad(playerRotation))*speedFW;
           playerPosition[0] -= Math.sin(degToRad(playerRotation))*speedFW;
           if(anyColide()){
-              hurtAudio.play();
+              //hurtAudio.play();
               playerPosition[2] += Math.cos(degToRad(playerRotation))*speedFW;
               playerPosition[0] += Math.sin(degToRad(playerRotation))*speedFW;
           }
@@ -1121,8 +1125,8 @@ function handleKeys() {
             console.log("zombie1health: ", zombie3Health);
           if(zombie1Health <= 0) {
             zombie1Health = 10;
-            zombie1Position[0] = playerPosition[0] -Math.sin(degToRad(playerRotation))*(Math.random()*15);
-            zombie1Position[2] = playerPosition[2] -Math.cos(degToRad(playerRotation))*(Math.random()*15);
+            zombie1Position[0] = playerPosition[0] + Math.sin(degToRad(playerRotation))*(Math.random()*5+15);
+            zombie1Position[2] = playerPosition[2] + Math.cos(degToRad(playerRotation))*(Math.random()*5+15);
           }
         }
         if(coliding(playerPosition, playerRadius + playerAttackRange, zombie2Position, zombieRadius)) {
@@ -1132,8 +1136,8 @@ function handleKeys() {
           if(zombie2Health <= 0) {
 
             zombie2Health = 10;
-            zombie2Position[0] = playerPosition[0] -Math.sin(degToRad(playerRotation))*(Math.random()*15);
-            zombie2Position[2] = playerPosition[2] -Math.cos(degToRad(playerRotation))*(Math.random()*5+15);
+            zombie2Position[0] = playerPosition[0] + Math.sin(degToRad(playerRotation))*(Math.random()*5+15);
+            zombie2Position[2] = playerPosition[2] + Math.cos(degToRad(playerRotation))*(Math.random()*5+15);
           }
         }
         if(coliding(playerPosition, playerRadius + playerAttackRange, zombie3Position, zombieRadius)) {
@@ -1141,8 +1145,8 @@ function handleKeys() {
           console.log("zombie3health: ", zombie3Health);
           if(zombie3Health <= 0) {
             zombie3Health = 10;
-            zombie3Position[0] = playerPosition[0] -Math.sin(degToRad(playerRotation))*(Math.random()*5+15);
-            zombie3Position[2] = playerPosition[2] -Math.cos(degToRad(playerRotation))*(Math.random()*5+15);
+            zombie3Position[0] = playerPosition[0] + Math.sin(degToRad(playerRotation))*(Math.random()*5+15);
+            zombie3Position[2] = playerPosition[2] + Math.cos(degToRad(playerRotation))*(Math.random()*5+15);
           }
         }
       }
@@ -1253,7 +1257,34 @@ function anyColide() {
     //console.log("coliding moon ", coliding(playerPosition, playerRadius, moonPosition, moonRadius));
     //console.log("moon distance", dist(playerPosition, moonPosition));
     return (coliding(playerPosition, playerRadius, moonPosition, moonRadius) || //collision z luno
-            coliding(playerPosition, playerRadius, cubePosition, cubeRadius));  //collision z kocko
+            coliding(playerPosition, playerRadius, cubePosition, cubeRadius) ||
+            coliding(playerPosition, playerRadius, zombie1Position, zombieRadius) ||
+            coliding(playerPosition, playerRadius, zombie2Position, zombieRadius) ||
+            coliding(playerPosition, playerRadius, zombie3Position, zombieRadius));  //collision z kocko
+}
+
+function anyColideZombie1() {
+  return (coliding(zombie1Position, zombieRadius, moonPosition, moonRadius) || //collision z luno
+            coliding(zombie1Position, zombieRadius, cubePosition, cubeRadius) ||
+            coliding(zombie1Position, zombieRadius, playerPosition, playerRadius) ||
+            coliding(zombie1Position, zombieRadius, zombie2Position, zombieRadius) ||
+            coliding(zombie1Position, zombieRadius, zombie3Position, zombieRadius));  //collision z kocko
+}
+
+function anyColideZombie2() {
+  return (coliding(zombie2Position, zombieRadius, moonPosition, moonRadius) || //collision z luno
+            coliding(zombie2Position, zombieRadius, cubePosition, cubeRadius) ||
+            coliding(zombie2Position, zombieRadius, playerPosition, playerRadius) ||
+            coliding(zombie2Position, zombieRadius, zombie1Position, zombieRadius) ||
+            coliding(zombie2Position, zombieRadius, zombie3Position, zombieRadius));  //collision z kocko
+}
+
+function anyColideZombie3() {
+  return (coliding(zombie3Position, zombieRadius, moonPosition, moonRadius) || //collision z luno
+            coliding(zombie3Position, zombieRadius, cubePosition, cubeRadius) ||
+            coliding(zombie3Position, zombieRadius, playerPosition, playerRadius) ||
+            coliding(zombie3Position, zombieRadius, zombie2Position, zombieRadius) ||
+            coliding(zombie3Position, zombieRadius, zombie1Position, zombieRadius));  //collision z kocko
 }
 var timer = 0;
 function moveZombies() {
@@ -1269,6 +1300,11 @@ function moveZombies() {
         hurtPlayer(1, hurtAudio);
         playerHurtTimeout = 180;
     }
+    
+    if(anyColideZombie1()) {
+      zombie1Position[0] += xMul1 * Math.abs(Math.sin(degToRad(zombie1Rotation)))*zombieSpeed;
+      zombie1Position[2] += zMul1 * Math.abs(Math.cos(degToRad(zombie1Rotation)))*zombieSpeed;
+    }
 
 
     var vecToPlayer2 = [-zombie2Position[0] + playerPosition[0], -zombie2Position[1] + playerPosition[1], -zombie2Position[2] + playerPosition[2]];
@@ -1277,11 +1313,19 @@ function moveZombies() {
     var zMul2 = vecToPlayer2[2] < 0 ? 1 : -1;
     zombie2Position[0] -= xMul2 * Math.abs(Math.sin(degToRad(zombie2Rotation)))*zombieSpeed;
     zombie2Position[2] -= zMul2 * Math.abs(Math.cos(degToRad(zombie2Rotation)))*zombieSpeed;
+    
+    
 
     if(coliding(zombie2Position, zombieRadius, playerPosition, playerRadius) && playerHurtTimeout == 0) {
         hurtPlayer(1, hurtAudio);
         playerHurtTimeout = 180;
     }
+    
+    if(anyColideZombie2()) {
+      zombie2Position[0] += xMul1 * Math.abs(Math.sin(degToRad(zombie2Rotation)))*zombieSpeed;
+      zombie2Position[2] += zMul1 * Math.abs(Math.cos(degToRad(zombie2Rotation)))*zombieSpeed;
+    }
+    
 
     var vecToPlayer3 = [-zombie3Position[0] + playerPosition[0], -zombie3Position[1] + playerPosition[1], -zombie3Position[2] + playerPosition[2]];
     zombie3Rotation = radToDeg(Math.acos(vec3.dot(vecToPlayer3, [0, 0, -1])/vec3.length(vecToPlayer3)));
@@ -1293,6 +1337,11 @@ function moveZombies() {
     if(coliding(zombie3Position, zombieRadius, playerPosition, playerRadius) && playerHurtTimeout == 0) {
         hurtPlayer(1, hurtAudio);
         playerHurtTimeout = 180;
+    }
+    
+    if(anyColideZombie3()) {
+      zombie3Position[0] += xMul1 * Math.abs(Math.sin(degToRad(zombie3Rotation)))*zombieSpeed;
+      zombie3Position[2] += zMul1 * Math.abs(Math.cos(degToRad(zombie3Rotation)))*zombieSpeed;
     }
 
     timer += 1;
@@ -1341,7 +1390,7 @@ function restartGame() {
   zombie2Rotation = 0;
   zombie2Health = 10;
 
-  zombie3Position = [0, 0, 0];
+  zombie3Position = [0, 0, -7];
   zombie3Rotation = 0;
   zombie3Health = 10;
 
