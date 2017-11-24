@@ -66,6 +66,7 @@ var playerAttackRange = 7;
 var playerAttackCooldown = 0;
 
 var playerRotation = 0;
+var spin2Win = 0;
 
 var speedFW = 0.3;
 var speedBW = 0.15;
@@ -889,6 +890,7 @@ function drawScene() {
   mat4.translate(mvMatrix, [0, -1, 0]);
 
   mat4.rotate(mvMatrix, degToRad(playerRotation), [0, 1, 0]);
+  mat4.rotate(mvMatrix, degToRad(spin2Win), [0, 1, 0]);
   //mat4.rotate(mvMatrix, degToRad(cubeAngle), [0, 1, 0]);
   //mat4.translate(mvMatrix, [1.25, 0, 4]);
 
@@ -924,7 +926,7 @@ function drawScene() {
   //1
   mvPushMatrix();
   mat4.translate(mvMatrix, zombie1Position);
-
+  mat4.scale(mvMatrix, [1.5, 1.5, 1.5]);
   mat4.rotate(mvMatrix, degToRad(180), [0, 1, 0]);//popravki, da je pravilno obrnjen in na tleh
   mat4.translate(mvMatrix, [0, -1, 0]);
 
@@ -960,7 +962,7 @@ function drawScene() {
   //2
   mvPushMatrix();
   mat4.translate(mvMatrix, zombie2Position);
-
+  mat4.scale(mvMatrix, [1.5, 1.5, 1.5]);
   mat4.rotate(mvMatrix, degToRad(180), [0, 1, 0]);//popravki, da je pravilno obrnjen in na tleh
   mat4.translate(mvMatrix, [0, -1, 0]);
 
@@ -996,7 +998,7 @@ function drawScene() {
   //3
   mvPushMatrix();
   mat4.translate(mvMatrix, zombie3Position);
-
+  mat4.scale(mvMatrix, [1.5, 1.5, 1.5]);
   mat4.rotate(mvMatrix, degToRad(180), [0, 1, 0]);//popravki, da je pravilno obrnjen in na tleh
   mat4.translate(mvMatrix, [0, -1, 0]);
 
@@ -1236,10 +1238,18 @@ function start() {
         }
         if(playerAttackCooldown > 0) {
           playerAttackCooldown -= 1;
+          if(playerAttackCooldown >= 90) {
+            spin2Win = (spin2Win + 360*4/120)%360;
+          }
         }
         if(playerHealth <= 0) {
           deadAudio.play();
           gameOver = true;
+        }
+        if(playerRotation > 360) {
+          playerRotation -= 360;
+        } else if(playerRotation < -360) {
+          playerRotation += 360;
         }
         handleKeys();
         moveZombies();
@@ -1380,10 +1390,10 @@ function moveZombies() {
       zombie3Position[0] += vecZomb[0]*4;
       zombie2Position[2] += vecZomb[2]*4;
     }
-    if(timer == 60) {
-      timer = 0;
-      console.log("vecToPlayer1: ", vecToPlayer1);
-    }
+    //if(timer == 60) {
+      //timer = 0;
+      //console.log("vecToPlayer1: ", vecToPlayer1);
+    //}
     
     timer += 1;
 }
