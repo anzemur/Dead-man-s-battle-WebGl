@@ -105,17 +105,17 @@ var speedBW = 0.15;
 var speedSide = 0.2;
 
 
-var zombie1Position = [15, 0, 0];
+var zombie1Position = [50, 0, 0];
 var zombie1Rotation = 0;
 var zombie1Health = 5;
 var zombie1Spin = 0;
 
-var zombie2Position = [0, 0, 30];
+var zombie2Position = [-50, 0, 0];
 var zombie2Rotation = 0;
 var zombie2Health = 5;
 var zombie2Spin = 0;
 
-var zombie3Position = [0, 0, -7];
+var zombie3Position = [0, 0, 50];
 var zombie3Rotation = 0;
 var zombie3Health = 5;
 
@@ -131,7 +131,7 @@ var floorScale = [100, 100, 1];
 var cubePosition = [3.25, 0, 0];
 var cubeRadius = 1;
 
-var moonPosition = [-15.0, 0, 0];
+var moonPosition = [-15.0, -30, -30];
 var moonRadius = 1;
 
 var hurtAudio = new Audio('./assets/hurt.m4a');
@@ -919,6 +919,7 @@ function drawScene() {
   // drawing the world.
   mat4.rotate(mvMatrix, degToRad(moonAngle), [0, 1, 0]);
   mat4.translate(mvMatrix, [-moonPosition[0], -moonPosition[1], -moonPosition[2]]);
+  mat4.scale(mvMatrix, [10, 10, 10]);
 
   // Activate textures
   gl.activeTexture(gl.TEXTURE0);
@@ -1278,8 +1279,8 @@ function handleKeys() {
             //console.log("zombie1health: ", zombie3Health);
           if(zombie1Health <= 0) {
             zombie1Health = 10;
-            zombie1Position[0] = playerPosition[0] + Math.sin(degToRad(playerRotation))*(Math.random()*5+15);
-            zombie1Position[2] = playerPosition[2] + Math.cos(degToRad(playerRotation))*(Math.random()*5+15);
+            zombie1Position[0] = playerPosition[0] + Math.sin(degToRad(playerRotation))*(Math.random()*5+50);
+            zombie1Position[2] = playerPosition[2] + Math.cos(degToRad(playerRotation))*(Math.random()*5+50);
             zombie1Spin = 0;
           }
         }
@@ -1290,8 +1291,8 @@ function handleKeys() {
           if(zombie2Health <= 0) {
 
             zombie2Health = 10;
-            zombie2Position[0] = playerPosition[0] + Math.sin(degToRad(playerRotation))*(Math.random()*5+15);
-            zombie2Position[2] = playerPosition[2] + Math.cos(degToRad(playerRotation))*(Math.random()*5+15);
+            zombie2Position[0] = playerPosition[0] + Math.sin(degToRad(playerRotation))*(Math.random()*5+50);
+            zombie2Position[2] = playerPosition[2] + Math.cos(degToRad(playerRotation))*(Math.random()*5+50);
             zombie2Spin = 0;
           }
         }
@@ -1300,8 +1301,8 @@ function handleKeys() {
           //console.log("zombie3health: ", zombie3Health);
           if(zombie3Health <= 0) {
             zombie3Health = 10;
-            zombie3Position[0] = playerPosition[0] + Math.sin(degToRad(playerRotation))*(Math.random()*5+15);
-            zombie3Position[2] = playerPosition[2] + Math.cos(degToRad(playerRotation))*(Math.random()*5+15);
+            zombie3Position[0] = playerPosition[0] + Math.sin(degToRad(playerRotation))*(Math.random()*5+50);
+            zombie3Position[2] = playerPosition[2] + Math.cos(degToRad(playerRotation))*(Math.random()*5+50);
             zombie3Spin = 0;
           }
         }
@@ -1359,7 +1360,7 @@ function start() {
 
   // Only continue if WebGL is available and working
   if (gl) {
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);                      // Set clear color to black, fully opaque
+    gl.clearColor(0.4, 0.0, 0.0, 1.0);                      // Set clear color to black, fully opaque
     gl.clearDepth(1.0);                                     // Clear everything
     gl.enable(gl.DEPTH_TEST);                               // Enable depth testing
     gl.depthFunc(gl.LEQUAL);                                // Near things obscure far things
@@ -1649,7 +1650,7 @@ function restartGame() {
 
   cubePosition = [3.25, 0, 0];
 
-  moonPosition = [-15.0, 0, 0];
+  moonPosition = [-15.0, 25, 0];
 
   gameOver = false;
 
