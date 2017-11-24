@@ -178,6 +178,12 @@
 				<button id="startButton" onClick="startGame()" style="background:black"><img src=./logos_and_buttons/button_start_game.png></button>
 			</div>
 			
+			<div id="loadingScreen" style="position: absolute; left: 0px; top: 0px; width:100%; height:100%; background-color: black;"> </style>
+				
+				<img src="./logos_and_buttons/loading_screen.gif" style="padding-top: 150px"></img>
+			
+			</div>
+			
 			<div id="pauseMenu" style="position: absolute; left: 0px; top: 0px; width:100%; height:100%; background-color: black;"> </style>
 				<br><br>
 				<img src="./logos_and_buttons/pause_logo.png"></img>
@@ -190,7 +196,7 @@
 			
 			</div>
 			
-				<div id="gameOver" style="position: absolute; left: 0px; top: 0px; width:100%; height:100%; background-color: black;"> </style>
+			<div id="gameOver" style="position: absolute; left: 0px; top: 0px; width:100%; height:100%; background-color: black;"> </style>
 				<img src="./logos_and_buttons/game_over_logo.png"></img>
 				</br>
 				<br>	<br>	<br>
@@ -202,7 +208,7 @@
 			
 			</div>
 			
-				<div id="game" style="position: absolute; left: 0px; top: 0px; width:wrap_content; height:wrap_content; background: rgba(54, 25, 25, .0);"></style>
+			<div id="game" style="position: absolute; left: 0px; top: 0px; width:wrap_content; height:wrap_content; background: rgba(54, 25, 25, .0);"></style>
 				<img id="fullLife1" src="./life_bar/full_life.png" style="position:absolute; width:50px; height:50px;"> </style></img>
 				<img id="halfLife1" src="./life_bar/half_life.png" style="position:relative; width:50px; height:50px;"> </style></img>
 				
@@ -213,10 +219,15 @@
 				<img id="halfLife3" src="./life_bar/half_life.png" style="position:relative; width:50px; height:50px;"> </style></img>
 				
 				
+				
 			</div>
 			
 			
 			
+			
+			
+			
+		
 			
 		    <input hidden type="checkbox" id="lighting" checked /> <!--Use lighting--><br/>
 		    <input hidden type="checkbox" id="per-fragment" checked /> <!--Per-fragment lighting--><br/>

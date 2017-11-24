@@ -9,6 +9,7 @@ var mainMenu;
 var pauseMenu;
 var gameOverMenu;
 var inGameUI;
+var loadMenu;
 
 //Life bar vars
 var full_1;
@@ -37,6 +38,8 @@ var pauseShow = false;
 
 
 function startGame() {
+
+  loadMenu.style.visibility = 'visible';
   canvas.style.visibility='visible';
   mainMenu.style.visibility = 'hidden';
   inGameUI.style.visibility = 'visible';
@@ -389,7 +392,7 @@ function initTextures() {
     handleTextureLoaded(monsterTexture)
   }
   monsterTexture.image.src = "./assets/monsterTex.png";
-  
+
   floorTexture = gl.createTexture();
   floorTexture.image = new Image();
   floorTexture.image.onload = function () {
@@ -1127,9 +1130,9 @@ function drawScene() {
 
   // restore last location
   mvPopMatrix();
-  
-  
-  
+
+
+
   //////////////////////////////tla
   mvPushMatrix();
   mat4.translate(mvMatrix, tlaPosition);
@@ -1339,12 +1342,14 @@ function handleKeys() {
 //
 function start() {
     initLife();
+    loadMenu = document.getElementById("loadingScreen");
     inGameUI = document.getElementById("game");
     canvas = document.getElementById("glcanvas");
     mainMenu = document.getElementById("mainMenu");
     pauseMenu = document.getElementById("pauseMenu");
     gameOverMenu = document.getElementById("gameOver");
 
+    loadMenu.style.visibility = 'hidden';
     inGameUI.style.visibility = 'hidden';
     gameOverMenu.style.visibility = 'hidden';
     canvas.style.visibility ='hidden';
@@ -1394,7 +1399,7 @@ function start() {
         zombie1Spin = (zombie1Spin + 360*4/120)%360;
         zombie2Spin = (zombie2Spin + 360*4/120)%360;
         zombie3Spin = (zombie3Spin + 360*4/120)%360;
-        
+
         if(playerHealth <= 0) {
             deadAudio.play();
             gameOverMenu.style.visibility = 'visible';
