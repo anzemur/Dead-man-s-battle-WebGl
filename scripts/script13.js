@@ -8,6 +8,27 @@ var gameOver = false;
 var mainMenu;
 var pauseMenu;
 var gameOverMenu;
+var inGameUI;
+
+//Life bar vars
+var full_1;
+var full_2;
+var full_3;
+
+var half_1;
+var half_2;
+var half_3;
+
+
+function initLife() {
+  half_1 = document.getElementById("halfLife1");
+  half_2 = document.getElementById("halfLife2");
+  half_3 = document.getElementById("halfLife3");
+
+  full_1 = document.getElementById("fullLife1");
+  full_2 = document.getElementById("fullLife2");
+  full_3 = document.getElementById("fullLife3");
+}
 
 
 //Pause/play trigger
@@ -18,6 +39,7 @@ var pauseShow = false;
 function startGame() {
   canvas.style.visibility='visible';
   mainMenu.style.visibility = 'hidden';
+  inGameUI.style.visibility = 'visible';
   playTime = true;
   pauseShow = true;
 
@@ -26,6 +48,7 @@ function startGame() {
 
 function resumeGame() {
   playTime = true;
+  inGameUI.style.visibility = 'visible';
   pauseMenu.style.visibility = 'hidden';
   canvas.style.visibility='visible';
 
@@ -345,7 +368,7 @@ function initTextures() {
     handleTextureLoaded(testBarvaTexture)
   }
   testBarvaTexture.image.src = "./assets/vojakTex.png";
-  
+
   monsterTexture = gl.createTexture();
   monsterTexture.image = new Image();
   monsterTexture.image.onload = function () {
@@ -1196,14 +1219,17 @@ function handleKeys() {
 // Figuratively, that is. There's nothing moving in this demo.
 //
 function start() {
+    initLife();
+    inGameUI = document.getElementById("game");
     canvas = document.getElementById("glcanvas");
     mainMenu = document.getElementById("mainMenu");
     pauseMenu = document.getElementById("pauseMenu");
     gameOverMenu = document.getElementById("gameOver");
 
+    inGameUI.style.visibility = 'hidden';
+    gameOverMenu.style.visibility = 'hidden';
     canvas.style.visibility ='hidden';
     pauseMenu.style.visibility = 'hidden';
-    gameOverMenu.style.visibility = 'hidden';
 
   gl = initGL(canvas);      // Initialize the GL context
 
@@ -1243,9 +1269,45 @@ function start() {
           }
         }
         if(playerHealth <= 0) {
-          deadAudio.play();
-          gameOver = true;
+            deadAudio.play();
+            gameOverMenu.style.visibility = 'visible';
+            inGameUI.style.visibility = 'hidden';
+            gameOver = true;
         }
+
+        switch (playerHealth) {
+          case 5:
+            full_3.style.visibility ='hidden';
+            console.log("first hit");
+            break;
+
+          case 4:
+            half_3.style.visibility ='hidden';
+            break;
+
+          case 3:
+            full_2.style.visibility ='hidden';
+            break;
+
+          case 2:
+            half_2.style.visibility ='hidden';
+            break;
+
+          case 1:
+            full_1.style.visibility ='hidden';
+
+            break;
+
+          case 1:
+            half_1.style.visibility ='hidden';
+
+            break;
+
+          default:
+            break;
+
+       }
+
         if(playerRotation > 360) {
           playerRotation -= 360;
         } else if(playerRotation < -360) {
@@ -1320,7 +1382,7 @@ function moveZombies() {
         hurtPlayer(1, hurtAudio);
         playerHurtTimeout = 180;
     }
-    
+
     if(anyColideZombie1()) {
       zombie1Position[0] += xMul1 * Math.abs(Math.sin(degToRad(zombie1Rotation)))*zombieSpeed*2;
       zombie1Position[2] += zMul1 * Math.abs(Math.cos(degToRad(zombie1Rotation)))*zombieSpeed*2;
@@ -1333,19 +1395,19 @@ function moveZombies() {
     var zMul2 = vecToPlayer2[2] < 0 ? 1 : -1;
     zombie2Position[0] -= xMul2 * Math.abs(Math.sin(degToRad(zombie2Rotation)))*zombieSpeed;
     zombie2Position[2] -= zMul2 * Math.abs(Math.cos(degToRad(zombie2Rotation)))*zombieSpeed;
-    
-    
+
+
 
     if(coliding(zombie2Position, zombieRadius, playerPosition, playerRadius) && playerHurtTimeout == 0) {
         hurtPlayer(1, hurtAudio);
         playerHurtTimeout = 180;
     }
-    
+
     if(anyColideZombie2()) {
       zombie2Position[0] += xMul1 * Math.abs(Math.sin(degToRad(zombie2Rotation)))*zombieSpeed*2;
       zombie2Position[2] += zMul1 * Math.abs(Math.cos(degToRad(zombie2Rotation)))*zombieSpeed*2;
     }
-    
+
 
     var vecToPlayer3 = [-zombie3Position[0] + playerPosition[0], -zombie3Position[1] + playerPosition[1], -zombie3Position[2] + playerPosition[2]];
     zombie3Rotation = radToDeg(Math.acos(vec3.dot(vecToPlayer3, [0, 0, -1])/vec3.length(vecToPlayer3)));
@@ -1358,12 +1420,12 @@ function moveZombies() {
         hurtPlayer(1, hurtAudio);
         playerHurtTimeout = 180;
     }
-    
+
     if(anyColideZombie3()) {
       zombie3Position[0] += xMul1 * Math.abs(Math.sin(degToRad(zombie3Rotation)))*zombieSpeed*2;
       zombie3Position[2] += zMul1 * Math.abs(Math.cos(degToRad(zombie3Rotation)))*zombieSpeed*2;
     }
-    
+
     if(coliding(zombie1Position, zombieRadius, zombie2Position, zombieRadius)) {
       portAudio.play();
       var vecZomb = [-zombie2Position[0] + zombie1Position[0], -zombie2Position[1] + zombie1Position[1], -zombie2Position[2] + zombie1Position[2]];
@@ -1372,7 +1434,7 @@ function moveZombies() {
       zombie2Position[0] += vecZomb[0]*4;
       zombie2Position[2] += vecZomb[2]*4;
     }
-    
+
     if(coliding(zombie1Position, zombieRadius, zombie3Position, zombieRadius)) {
       portAudio.play();
       var vecZomb = [-zombie3Position[0] + zombie1Position[0], -zombie3Position[1] + zombie1Position[1], -zombie3Position[2] + zombie1Position[2]];
@@ -1381,7 +1443,7 @@ function moveZombies() {
       zombie3Position[0] += vecZomb[0]*4;
       zombie3Position[2] += vecZomb[2]*4;
     }
-    
+
     if(coliding(zombie2Position, zombieRadius, zombie3Position, zombieRadius)) {
       portAudio.play();
       var vecZomb = [-zombie3Position[0] + zombie2Position[0], -zombie3Position[1] + zombie2Position[1], -zombie3Position[2] + zombie2Position[2]];
@@ -1394,7 +1456,7 @@ function moveZombies() {
       //timer = 0;
       //console.log("vecToPlayer1: ", vecToPlayer1);
     //}
-    
+
     timer += 1;
 }
 /**
@@ -1452,5 +1514,19 @@ function restartGame() {
   moonPosition = [-15.0, 0, 0];
 
   gameOver = false;
+
+  half_1.style.visibility ='visible';
+  half_2.style.visibility ='visible';
+  half_3.style.visibility ='visible';
+
+  full_1.style.visibility ='visible';
+  full_2.style.visibility ='visible';
+  full_3.style.visibility ='visible';
+
+
+  inGameUI.style.visibility = 'visible';
+  gameOverMenu.style.visibility = 'hidden';
+  pauseMenu.style.visibility = 'hidden';
+  startGame();
 
 }
