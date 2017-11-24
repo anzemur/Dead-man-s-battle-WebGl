@@ -42,7 +42,7 @@ function startGame() {
   loadMenu.style.visibility = 'visible';
   canvas.style.visibility='visible';
   mainMenu.style.visibility = 'hidden';
-  inGameUI.style.visibility = 'visible';
+  inGameUI.style.visibility = 'hidden';
   playTime = true;
   pauseShow = true;
 
@@ -1384,6 +1384,9 @@ function start() {
     // Set up to draw the scene periodically.
     setInterval(function() {
       if (texturesLoaded >= numberOfTextures && modelsLoaded >= numberOfModels && !gameOver && playTime) { // only draw scene and animate when textures are loaded.
+        inGameUI.style.visibility = 'visible';
+        loadMenu.style.visibility = 'hidden';
+        
         if(Math.abs(playerPosition[0]) > floorScale[0]+1 ||  Math.abs(playerPosition[0]) > floorScale[1] + 1) {
           hurtPlayer(playerHealth, hurtAudio);
         }
