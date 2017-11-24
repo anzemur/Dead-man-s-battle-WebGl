@@ -1433,7 +1433,7 @@ function start() {
 
             break;
 
-          case 1:
+          case 0:
             half_1.style.visibility ='hidden';
 
             break;
