@@ -88,10 +88,18 @@ var floorVertexNormalBuffer;
 var floorVertexTexBuffer;
 var floorVertexIndexBuffer;
 
+var sodVertexPositionBuffer;
+var sodVertexNormalBuffer;
+var sodVertexTexBuffer;
+var sodVertexIndexBuffer;
+
+
+var sodPosition = [0, 3, 0];
+
 var playerPosition = [0, 0, 0];
 var playerRadius = 1;
 
-var playerHealth = 6;
+var playerHealth = 1000;
 var playerHurtTimeout = 0;
 var playerAttackRange = 4;
 var playerAttackCooldown = 0;
@@ -155,12 +163,13 @@ var crateTexture;
 var testBarvaTexture;
 var monsterTexture;
 var floorTexture;
+var sodTexture;
 
 // Variable that stores  loading state of textures.
-var numberOfTextures = 5;
+var numberOfTextures = 6;
 var texturesLoaded = 0;
 
-var numberOfModels = 5;
+var numberOfModels = 6;
 var modelsLoaded = 0;
 
 // Mouse helper variables
@@ -399,6 +408,16 @@ function initTextures() {
     handleTextureLoaded(floorTexture)
   }
   floorTexture.image.src = "./assets/tlaTex.jpg";
+  
+  sodTexture = gl.createTexture();
+  sodTexture.image = new Image();
+  sodTexture.image.onload = function () {
+    handleTextureLoaded(sodTexture)
+  }
+  sodTexture.image.src = "./assets/sodTex.jpg";
+  
+  
+  
 }
 
 function handleTextureLoaded(texture) {
@@ -580,6 +599,58 @@ function handleLoadedFloor(modelData){
 
   modelsLoaded += 1;
 }
+
+
+var sodVertices;
+var sodNormals;
+var sodIndices;
+var sodTexCoords;
+
+function handleLoadedSod(modelData){
+  sodVertices = modelData.meshes[0].vertices;
+  sodNormals = modelData.meshes[0].normals;
+  sodIndices = [].concat.apply([], modelData.meshes[0].faces);
+  sodTexCoords = modelData.meshes[0].texturecoords[0];
+
+  //console.log(zombieVertices);
+  //console.log(zombieIndices);
+  //console.log(zombieTexCoords);
+  //console.log(zombieNormals);
+
+  console.log("Vertex num: "+sodVertices.length);
+  console.log("Normals num: "+sodNormals.length);
+  console.log("Normals num /3: "+sodNormals.length/3);
+  console.log("Textures num: "+sodTexCoords.length);
+  console.log("Indices num: "+sodIndices.length);
+
+  //OD TUKI NAPREJ INICIALIZIRAMO BUFFERJE
+  sodVertexPositionBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, sodVertexPositionBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sodVertices), gl.STATIC_DRAW);
+  sodVertexPositionBuffer.itemSize = 3;
+  sodVertexPositionBuffer.numItems = sodVertices.length / 3;
+
+  sodVertexNormalBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, sodVertexNormalBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sodNormals), gl.STATIC_DRAW);
+  sodVertexNormalBuffer.itemSize = 3;
+  sodVertexNormalBuffer.numItems = sodNormals.length / 3;
+
+  sodVertexTexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, sodVertexTexBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sodTexCoords), gl.STATIC_DRAW);
+  sodVertexTexBuffer.itemSize = 2;
+  sodVertexTexBuffer.numItems = sodTexCoords.length / 2;
+
+  sodVertexIndexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sodVertexIndexBuffer);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(sodIndices), gl.STATIC_DRAW);
+  sodVertexIndexBuffer.itemSize = 1;
+  sodVertexIndexBuffer.numItems = sodIndices.length;
+
+  modelsLoaded += 1;
+}
+
 
 
 
@@ -1170,7 +1241,50 @@ function drawScene() {
 
   // restore last location
   mvPopMatrix();
+  
+  
+  /* SOD */
+  
+  mvPushMatrix();
+  mat4.translate(mvMatrix, sodPosition);
+  mat4.scale(mvMatrix, [1.5, 1.5, 1.5]);
+  mat4.rotate(mvMatrix, degToRad(180), [0, 1, 0]);//popravki, da je pravilno obrnjen in na tleh
+  //mat4.rotate(mvMatrix, degToRad(zombie3Spin), [0, 1, 0]);
+  mat4.translate(mvMatrix, [0, -1, 0]);
+
+  ///mat4.rotate(mvMatrix, degToRad(zombie3Rotation), [0, 1, 0]);
+  //mat4.rotate(mvMatrix, degToRad(cubeAngle), [0, 1, 0]);
+  //mat4.translate(mvMatrix, [1.25, 0, 4]);
+
+  // Set the vertex positions attribute for the crate vertices.
+  gl.bindBuffer(gl.ARRAY_BUFFER, sodVertexPositionBuffer);
+  gl.vertexAttribPointer(currentProgram.vertexPositionAttribute, sodVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+  // Set the normals attribute for the vertices.
+  gl.bindBuffer(gl.ARRAY_BUFFER, sodVertexNormalBuffer);
+  gl.vertexAttribPointer(currentProgram.vertexNormalAttribute, sodVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+  // Set the texture coordinates attribute for the vertices.
+  gl.bindBuffer(gl.ARRAY_BUFFER, sodVertexTexBuffer);
+  gl.vertexAttribPointer(currentProgram.textureCoordAttribute, sodVertexTexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+  // Activate textures
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, sodTexture);
+  gl.uniform1i(currentProgram.samplerUniform, 0);
+
+  // Draw the crate
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sodVertexIndexBuffer);
+  setMatrixUniforms();
+  gl.drawElements(gl.TRIANGLES, sodVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+
+  // restore last location
+  mvPopMatrix();
+
+  
 }
+
+
 
 //
 // animate
@@ -1374,6 +1488,7 @@ function start() {
     loadModel('./assets/vojak.json', handleLoadedModel1);
     loadModel('./assets/monster.json', handleLoadedZombie);
     loadModel('./assets/tla.json', handleLoadedFloor);
+    loadModel('./assets/sod.json', handleLoadedSod);
     initBuffers();
 
     // Next, load and set up the textures we'll be using.
