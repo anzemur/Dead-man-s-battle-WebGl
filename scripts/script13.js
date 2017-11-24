@@ -93,13 +93,17 @@ var sodVertexNormalBuffer;
 var sodVertexTexBuffer;
 var sodVertexIndexBuffer;
 
+var sod1VertexPositionBuffer;
+var sod1VertexNormalBuffer;
+var sod1VertexTexBuffer;
+var sod1VertexIndexBuffer;
 
 
 
 var playerPosition = [0, 0, 0];
 var playerRadius = 1;
 
-var playerHealth = 1000;
+var playerHealth = 6;
 var playerHurtTimeout = 0;
 var playerAttackRange = 4;
 var playerAttackCooldown = 0;
@@ -115,17 +119,17 @@ var speedSide = 0.2;
 
 var zombie1Position = [50, 0, 0];
 var zombie1Rotation = 0;
-var zombie1Health = 5;
+var zombie1Health = 3;
 var zombie1Spin = 0;
 
 var zombie2Position = [-50, 0, 0];
 var zombie2Rotation = 0;
-var zombie2Health = 5;
+var zombie2Health = 3;
 var zombie2Spin = 0;
 
 var zombie3Position = [0, 0, 50];
 var zombie3Rotation = 0;
-var zombie3Health = 5;
+var zombie3Health = 3;
 
 var zombieSpeed = 0.1;
 var zombieRadius = 1;
@@ -135,8 +139,11 @@ var tlaPosition = [0, -1.2, 0];
 var tlaRotation = 0;
 var floorScale = [100, 100, 1];
 
-var sodPosition = [0, 0, 0];
+var sodPosition = [10, 0, 0];
 var sodRadius = 1;
+
+var sodPosition1 = [0, 0, -30];
+var sodRadius1 = 7.5;
 
 
 var cubePosition = [3.25, 0, 0];
@@ -167,12 +174,13 @@ var testBarvaTexture;
 var monsterTexture;
 var floorTexture;
 var sodTexture;
+var sod1Texture;
 
 // Variable that stores  loading state of textures.
-var numberOfTextures = 6;
+var numberOfTextures = 7;
 var texturesLoaded = 0;
 
-var numberOfModels = 6;
+var numberOfModels = 7;
 var modelsLoaded = 0;
 
 // Mouse helper variables
@@ -419,6 +427,12 @@ function initTextures() {
   }
   sodTexture.image.src = "./assets/test.jpg";
   
+  sod1Texture = gl.createTexture();
+  sod1Texture.image = new Image();
+  sod1Texture.image.onload = function () {
+    handleTextureLoaded(sod1Texture)
+  }
+  sod1Texture.image.src = "./assets/wallTx.jpg";
   
   
 }
@@ -653,6 +667,61 @@ function handleLoadedSod(modelData){
 
   modelsLoaded += 1;
 }
+
+
+
+var sod1Vertices;
+var sod1Normals;
+var sod1Indices;
+var sod1TexCoords;
+
+function handleLoadedSod1(modelData){
+  sod1Vertices = modelData.meshes[0].vertices;
+  sod1Normals = modelData.meshes[0].normals;
+  sod1Indices = [].concat.apply([], modelData.meshes[0].faces);
+  sod1TexCoords = modelData.meshes[0].texturecoords[0];
+
+  //console.log(zombieVertices);
+  //console.log(zombieIndices);
+  //console.log(zombieTexCoords);
+  //console.log(zombieNormals);
+
+  console.log("Vertex num: "+sodVertices.length);
+  console.log("Normals num: "+sodNormals.length);
+  console.log("Normals num /3: "+sodNormals.length/3);
+  console.log("Textures num: "+sodTexCoords.length);
+  console.log("Indices num: "+sodIndices.length);
+
+  //OD TUKI NAPREJ INICIALIZIRAMO BUFFERJE
+  sod1VertexPositionBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, sod1VertexPositionBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sod1Vertices), gl.STATIC_DRAW);
+  sod1VertexPositionBuffer.itemSize = 3;
+  sod1VertexPositionBuffer.numItems = sod1Vertices.length / 3;
+
+  sod1VertexNormalBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, sod1VertexNormalBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sod1Normals), gl.STATIC_DRAW);
+  sod1VertexNormalBuffer.itemSize = 3;
+  sod1VertexNormalBuffer.numItems = sod1Normals.length / 3;
+
+  sod1VertexTexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, sod1VertexTexBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sod1TexCoords), gl.STATIC_DRAW);
+  sod1VertexTexBuffer.itemSize = 2;
+  sod1VertexTexBuffer.numItems = sod1TexCoords.length / 2;
+
+  sod1VertexIndexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sod1VertexIndexBuffer);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(sod1Indices), gl.STATIC_DRAW);
+  sod1VertexIndexBuffer.itemSize = 1;
+  sod1VertexIndexBuffer.numItems = sod1Indices.length;
+
+  modelsLoaded += 1;
+}
+
+
+
 
 
 
@@ -1250,7 +1319,7 @@ function drawScene() {
   
   mvPushMatrix();
   mat4.translate(mvMatrix, sodPosition);
-  mat4.scale(mvMatrix, [1.5, 1.5, 1.5]);
+  mat4.scale(mvMatrix, [2, 3, 2]);
   //mat4.rotate(mvMatrix, degToRad(180), [0, 1, 0]);//popravki, da je pravilno obrnjen in na tleh
   //mat4.rotate(mvMatrix, degToRad(zombie3Spin), [0, 1, 0]);
   
@@ -1285,7 +1354,52 @@ function drawScene() {
   mvPopMatrix();
 
   
+
+
+/* SOD */
+  
+  mvPushMatrix();
+  mat4.translate(mvMatrix, sodPosition1);
+  mat4.scale(mvMatrix, [15, 15, 15]);
+  
+  //mat4.translate(mvMatrix, [0, 5, 0]);
+  //mat4.translate(mvMatrix, [0, 10, 0]);
+  //mat4.rotate(mvMatrix, degToRad(180), [0, 1, 0]);//popravki, da je pravilno obrnjen in na tleh
+  //mat4.rotate(mvMatrix, degToRad(zombie3Spin), [0, 1, 0]);
+  
+
+  ///mat4.rotate(mvMatrix, degToRad(zombie3Rotation), [0, 1, 0]);
+  //mat4.rotate(mvMatrix, degToRad(cubeAngle), [0, 1, 0]);
+  //mat4.translate(mvMatrix, [1.25, 0, 4]);
+
+  // Set the vertex positions attribute for the crate vertices.
+  gl.bindBuffer(gl.ARRAY_BUFFER, sod1VertexPositionBuffer);
+  gl.vertexAttribPointer(currentProgram.vertexPositionAttribute, sod1VertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+  // Set the normals attribute for the vertices.
+  gl.bindBuffer(gl.ARRAY_BUFFER, sod1VertexNormalBuffer);
+  gl.vertexAttribPointer(currentProgram.vertexNormalAttribute, sod1VertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+  // Set the texture coordinates attribute for the vertices.
+  gl.bindBuffer(gl.ARRAY_BUFFER, sod1VertexTexBuffer);
+  gl.vertexAttribPointer(currentProgram.textureCoordAttribute, sod1VertexTexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+  // Activate textures
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, sod1Texture);
+  gl.uniform1i(currentProgram.samplerUniform, 0);
+
+  // Draw the crate
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sod1VertexIndexBuffer);
+  setMatrixUniforms();
+  gl.drawElements(gl.TRIANGLES, sod1VertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+
+  // restore last location
+  mvPopMatrix();
+
+  
 }
+
 
 
 
@@ -1492,6 +1606,7 @@ function start() {
     loadModel('./assets/monster.json', handleLoadedZombie);
     loadModel('./assets/tla.json', handleLoadedFloor);
     loadModel('./assets/sod.json', handleLoadedSod);
+    loadModel('./assets/sod.json', handleLoadedSod1);
     initBuffers();
 
     // Next, load and set up the textures we'll be using.
@@ -1596,15 +1711,17 @@ function anyColide() {
             coliding(playerPosition, playerRadius, cubePosition, cubeRadius) ||
             coliding(playerPosition, playerRadius, zombie1Position, zombieRadius) ||
             coliding(playerPosition, playerRadius, zombie2Position, zombieRadius) ||
-            coliding(playerPosition, playerRadius, zombie3Position, zombieRadius ||
-            coliding(playerPosition, playerRadius, sodPosition, sodRadius)));  //collision z kocko
+            coliding(playerPosition, playerRadius, zombie3Position, zombieRadius) ||
+            coliding(playerPosition, playerRadius, sodPosition, sodRadius) ||
+            coliding(playerPosition, playerRadius, sodPosition1, sodRadius1));  //collision z kocko
 }
 
 function anyColideZombie1() {
   return (coliding(zombie1Position, zombieRadius, moonPosition, moonRadius) || //collision z luno
             coliding(zombie1Position, zombieRadius, cubePosition, cubeRadius) ||
             coliding(zombie1Position, zombieRadius, playerPosition, playerRadius) ||
-            coliding(zombie1Position, zombieRadius, sodPosition, sodRadius)/*||
+            coliding(zombie1Position, zombieRadius, sodPosition, sodRadius) ||
+            coliding(zombie1Position, zombieRadius, sodPosition1, sodRadius1)/*||
             coliding(zombie1Position, zombieRadius, zombie2Position, zombieRadius) ||
             coliding(zombie1Position, zombieRadius, zombie3Position, zombieRadius)*/);  //collision z kocko
 }
@@ -1613,7 +1730,8 @@ function anyColideZombie2() {
   return (coliding(zombie2Position, zombieRadius, moonPosition, moonRadius) || //collision z luno
             coliding(zombie2Position, zombieRadius, cubePosition, cubeRadius) ||
             coliding(zombie2Position, zombieRadius, playerPosition, playerRadius) ||
-            coliding(zombie2Position, zombieRadius, sodPosition, sodRadius)/*||
+            coliding(zombie2Position, zombieRadius, sodPosition, sodRadius) ||
+            coliding(zombie2Position, zombieRadius, sodPosition1, sodRadius1)/*||
             coliding(zombie2Position, zombieRadius, zombie1Position, zombieRadius) ||
             coliding(zombie2Position, zombieRadius, zombie3Position, zombieRadius)*/);  //collision z kocko
 }
@@ -1622,7 +1740,8 @@ function anyColideZombie3() {
   return (coliding(zombie3Position, zombieRadius, moonPosition, moonRadius) || //collision z luno
             coliding(zombie3Position, zombieRadius, cubePosition, cubeRadius) ||
             coliding(zombie3Position, zombieRadius, playerPosition, playerRadius) ||
-            coliding(zombie3Position, zombieRadius, sodPosition, sodRadius)/*||
+            coliding(zombie3Position, zombieRadius, sodPosition, sodRadius) ||
+            coliding(zombie3Position, zombieRadius, sodPosition1, sodRadius1)/*||
             coliding(zombie3Position, zombieRadius, zombie2Position, zombieRadius) ||
             coliding(zombie3Position, zombieRadius, zombie1Position, zombieRadius)*/);  //collision z kocko
 }

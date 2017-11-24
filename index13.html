@@ -227,46 +227,38 @@
 			
 			
 			
-		
+		<div style="visibility:hidden">
 			
-		    <input hidden type="checkbox" id="lighting" checked /> <!--Use lighting--><br/>
-		    <input hidden type="checkbox" id="per-fragment" checked /> <!--Per-fragment lighting--><br/>
-		    <input hidden type="checkbox" id="textures" checked /> <!--Use textures--><br/>
-		    <br/>
+		    <input hidden type="checkbox" id="lighting" checked style="visibility:hidden" /> <!--Use lighting-->
+		    <input hidden type="checkbox" id="per-fragment" checked style="visibility:hidden" /> <!--Per-fragment lighting-->
+		    <input hidden type="checkbox" id="textures" checked style="visibility:hidden" /> <!--Use textures-->
+		</div>
 
-    <br/>
-    <h2>Point light:</h2>
-
-    <table>
+    <table style="visibility:visible">
         <tr>
             <td class="table1st"><b>Point light:</b></td>
-            <td>X: <input type="range" min="-30" max="30" step="0.05" id="lightPositionX" value="0" oninput="showValue(this.id, this.value)" /><span id="lightPositionXspan">0.0</span></td>
-            <td>Y: <input type="range" min="-30" max="30" step="0.05" id="lightPositionY" value="0" oninput="showValue(this.id, this.value)" /><span id="lightPositionYspan">0.0</span></td>
-            <td>Z: <input type="range" min="-60" max="60" step="1" id="lightPositionZ" value="-5" oninput="showValue(this.id, this.value)" /><span id="lightPositionZspan">-5.0</span></td>
+            <td>X: <input type="range" min="-30" max="30" step="0.05" id="lightPositionX" value="-30.0" oninput="showValue(this.id, this.value)" /><span id="lightPositionXspan">0.0</span></td>
+            <td>Y: <input type="range" min="-30" max="30" step="0.05" id="lightPositionY" value="-11.7" oninput="showValue(this.id, this.value)" /><span id="lightPositionYspan">0.0</span></td>
+            <td>Z: <input type="range" min="-60" max="60" step="1" id="lightPositionZ" value="3" oninput="showValue(this.id, this.value)" /><span id="lightPositionZspan">-5.0</span></td>
         </tr>
         <tr>
             <td><b>Color:</b></td>
-            <td>R: <input type="range" min="0" max="1" step="0.01" id="pointR" value="0.8" oninput="showValue(this.id, this.value)" /><span id="pointRspan">0.8</span></td>
-            <td>G: <input type="range" min="0" max="1" step="0.01" id="pointG" value="0.8" oninput="showValue(this.id, this.value)" /><span id="pointGspan">0.8</span></td>
+            <td>R: <input type="range" min="0" max="1" step="0.01" id="pointR" value="0.72" oninput="showValue(this.id, this.value)" /><span id="pointRspan">0.8</span></td>
+            <td>G: <input type="range" min="0" max="1" step="0.01" id="pointG" value="0.71" oninput="showValue(this.id, this.value)" /><span id="pointGspan">0.8</span></td>
             <td>B: <input type="range" min="0" max="1" step="0.01" id="pointB" value="0.8" oninput="showValue(this.id, this.value)" /><span id="pointBspan">0.8</span></td>
         </tr>
     </table>
 
-    <h2>Ambient light:</h2>
-    <table>
+  
+    <table style="visibility:visible">
         <tr>
             <td class="table1st"><b>Color:</b></td>
-            <td>R: <input type="range" min="0" max="1" step="0.01" id="ambientR" value="0.2" oninput="showValue(this.id, this.value)" /><span id="ambientRspan">0.2</span></td>
+            <td>R: <input type="range" min="0" max="1" step="0.01" id="ambientR" value="0.47" oninput="showValue(this.id, this.value)" /><span id="ambientRspan">0.2</span></td>
             <td>G: <input type="range" min="0" max="1" step="0.01" id="ambientG" value="0.2" oninput="showValue(this.id, this.value)" /><span id="ambientGspan">0.2</span></td>
-            <td>B: <input type="range" min="0" max="1" step="0.01" id="ambientB" value="0.2" oninput="showValue(this.id, this.value)" /><span id="ambientBspan">0.2</span></td>
+            <td>B: <input type="range" min="0" max="1" step="0.01" id="ambientB" value="0.11" oninput="showValue(this.id, this.value)" /><span id="ambientBspan">0.2</span></td>
         </tr>
     </table>
-			<br />
-			<br />
-		    Moon texture courtesy of <a href="http://maps.jpl.nasa.gov/">the Jet Propulsion Laboratory</a>.
-		    <br/>
-		    <br/>
-			<a href="./"><- Back</a>
+		
 		</div>
 	</body>
 </html>
