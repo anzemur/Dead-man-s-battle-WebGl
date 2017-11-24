@@ -101,6 +101,7 @@ var deadAudio = new Audio('./assets/ded.m4a');
 var zombieHurtAudio = new Audio('./assets/zombieHurt.m4a');
 zombieHurtAudio.volume = 0.5;
 //console.log("zombie hurt volume: ", zombieHurtAudio.volume);
+var portAudio = new Audio('./assets/port.m4a');
 
 
 // Model-view and projection matrix and model-view matrix stack
@@ -112,12 +113,13 @@ var pMatrix = mat4.create();
 var moonTexture;
 var crateTexture;
 var testBarvaTexture;
+var monsterTexture;
 
 // Variable that stores  loading state of textures.
-var numberOfTextures = 3;
+var numberOfTextures = 4;
 var texturesLoaded = 0;
 
-var numberOfModels = 3;
+var numberOfModels = 4;
 var modelsLoaded = 0;
 
 // Mouse helper variables
@@ -342,6 +344,13 @@ function initTextures() {
     handleTextureLoaded(testBarvaTexture)
   }
   testBarvaTexture.image.src = "./assets/vojakTex.png";
+  
+  monsterTexture = gl.createTexture();
+  monsterTexture.image = new Image();
+  monsterTexture.image.onload = function () {
+    handleTextureLoaded(monsterTexture)
+  }
+  monsterTexture.image.src = "./assets/monsterTex.png";
 }
 
 function handleTextureLoaded(texture) {
@@ -386,10 +395,10 @@ function handleLoadedModel1(modelData){
   model1Indices = [].concat.apply([], modelData.meshes[0].faces);
   model1TexCoords = modelData.meshes[0].texturecoords[0];
 
-  console.log(model1Vertices);
-  console.log(model1Indices);
-  console.log(model1TexCoords);
-  console.log(model1Normals);
+  //console.log(model1Vertices);
+  //console.log(model1Indices);
+  //console.log(model1TexCoords);
+  //console.log(model1Normals);
 
   console.log("Vertex num: "+model1Vertices.length);
   console.log("Normals num: "+model1Normals.length);
@@ -436,10 +445,10 @@ function handleLoadedZombie(modelData){
   zombieIndices = [].concat.apply([], modelData.meshes[0].faces);
   zombieTexCoords = modelData.meshes[0].texturecoords[0];
 
-  console.log(zombieVertices);
-  console.log(zombieIndices);
-  console.log(zombieTexCoords);
-  console.log(zombieNormals);
+  //console.log(zombieVertices);
+  //console.log(zombieIndices);
+  //console.log(zombieTexCoords);
+  //console.log(zombieNormals);
 
   console.log("Vertex num: "+zombieVertices.length);
   console.log("Normals num: "+zombieNormals.length);
@@ -448,29 +457,29 @@ function handleLoadedZombie(modelData){
   console.log("Indices num: "+zombieIndices.length);
 
   //OD TUKI NAPREJ INICIALIZIRAMO BUFFERJE
-  model1VertexPositionBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexPositionBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model1Vertices), gl.STATIC_DRAW);
-  model1VertexPositionBuffer.itemSize = 3;
-  model1VertexPositionBuffer.numItems = model1Vertices.length / 3;
+  zombieVertexPositionBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, zombieVertexPositionBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(zombieVertices), gl.STATIC_DRAW);
+  zombieVertexPositionBuffer.itemSize = 3;
+  zombieVertexPositionBuffer.numItems = zombieVertices.length / 3;
 
-  model1VertexNormalBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexNormalBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model1Normals), gl.STATIC_DRAW);
-  model1VertexNormalBuffer.itemSize = 3;
-  model1VertexNormalBuffer.numItems = model1Normals.length / 3;
+  zombieVertexNormalBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, zombieVertexNormalBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(zombieNormals), gl.STATIC_DRAW);
+  zombieVertexNormalBuffer.itemSize = 3;
+  zombieVertexNormalBuffer.numItems = zombieNormals.length / 3;
 
-  model1VertexTexBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexTexBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model1TexCoords), gl.STATIC_DRAW);
-  model1VertexTexBuffer.itemSize = 2;
-  model1VertexTexBuffer.numItems = model1TexCoords.length / 2;
+  zombieVertexTexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, zombieVertexTexBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(zombieTexCoords), gl.STATIC_DRAW);
+  zombieVertexTexBuffer.itemSize = 2;
+  zombieVertexTexBuffer.numItems = zombieTexCoords.length / 2;
 
-  model1VertexIndexBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model1VertexIndexBuffer);
-  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(model1Indices), gl.STATIC_DRAW);
-  model1VertexIndexBuffer.itemSize = 1;
-  model1VertexIndexBuffer.numItems = model1Indices.length;
+  zombieVertexIndexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, zombieVertexIndexBuffer);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(zombieIndices), gl.STATIC_DRAW);
+  zombieVertexIndexBuffer.itemSize = 1;
+  zombieVertexIndexBuffer.numItems = zombieIndices.length;
 
   modelsLoaded += 1;
 }
@@ -924,26 +933,26 @@ function drawScene() {
   //mat4.translate(mvMatrix, [1.25, 0, 4]);
 
   // Set the vertex positions attribute for the crate vertices.
-  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexPositionBuffer);
-  gl.vertexAttribPointer(currentProgram.vertexPositionAttribute, model1VertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, zombieVertexPositionBuffer);
+  gl.vertexAttribPointer(currentProgram.vertexPositionAttribute, zombieVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
   // Set the normals attribute for the vertices.
-  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexNormalBuffer);
-  gl.vertexAttribPointer(currentProgram.vertexNormalAttribute, model1VertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, zombieVertexNormalBuffer);
+  gl.vertexAttribPointer(currentProgram.vertexNormalAttribute, zombieVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
   // Set the texture coordinates attribute for the vertices.
-  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexTexBuffer);
-  gl.vertexAttribPointer(currentProgram.textureCoordAttribute, model1VertexTexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, zombieVertexTexBuffer);
+  gl.vertexAttribPointer(currentProgram.textureCoordAttribute, zombieVertexTexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
   // Activate textures
   gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, testBarvaTexture);
+  gl.bindTexture(gl.TEXTURE_2D, monsterTexture);
   gl.uniform1i(currentProgram.samplerUniform, 0);
 
   // Draw the crate
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model1VertexIndexBuffer);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, zombieVertexIndexBuffer);
   setMatrixUniforms();
-  gl.drawElements(gl.TRIANGLES, model1VertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+  gl.drawElements(gl.TRIANGLES, zombieVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 
   // restore last location
   mvPopMatrix();
@@ -960,26 +969,26 @@ function drawScene() {
   //mat4.translate(mvMatrix, [1.25, 0, 4]);
 
   // Set the vertex positions attribute for the crate vertices.
-  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexPositionBuffer);
-  gl.vertexAttribPointer(currentProgram.vertexPositionAttribute, model1VertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, zombieVertexPositionBuffer);
+  gl.vertexAttribPointer(currentProgram.vertexPositionAttribute, zombieVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
   // Set the normals attribute for the vertices.
-  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexNormalBuffer);
-  gl.vertexAttribPointer(currentProgram.vertexNormalAttribute, model1VertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, zombieVertexNormalBuffer);
+  gl.vertexAttribPointer(currentProgram.vertexNormalAttribute, zombieVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
   // Set the texture coordinates attribute for the vertices.
-  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexTexBuffer);
-  gl.vertexAttribPointer(currentProgram.textureCoordAttribute, model1VertexTexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, zombieVertexTexBuffer);
+  gl.vertexAttribPointer(currentProgram.textureCoordAttribute, zombieVertexTexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
   // Activate textures
   gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, testBarvaTexture);
+  gl.bindTexture(gl.TEXTURE_2D, monsterTexture);
   gl.uniform1i(currentProgram.samplerUniform, 0);
 
   // Draw the crate
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model1VertexIndexBuffer);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, zombieVertexIndexBuffer);
   setMatrixUniforms();
-  gl.drawElements(gl.TRIANGLES, model1VertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+  gl.drawElements(gl.TRIANGLES, zombieVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 
   // restore last location
   mvPopMatrix();
@@ -996,26 +1005,26 @@ function drawScene() {
   //mat4.translate(mvMatrix, [1.25, 0, 4]);
 
   // Set the vertex positions attribute for the crate vertices.
-  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexPositionBuffer);
-  gl.vertexAttribPointer(currentProgram.vertexPositionAttribute, model1VertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, zombieVertexPositionBuffer);
+  gl.vertexAttribPointer(currentProgram.vertexPositionAttribute, zombieVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
   // Set the normals attribute for the vertices.
-  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexNormalBuffer);
-  gl.vertexAttribPointer(currentProgram.vertexNormalAttribute, model1VertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, zombieVertexNormalBuffer);
+  gl.vertexAttribPointer(currentProgram.vertexNormalAttribute, zombieVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
   // Set the texture coordinates attribute for the vertices.
-  gl.bindBuffer(gl.ARRAY_BUFFER, model1VertexTexBuffer);
-  gl.vertexAttribPointer(currentProgram.textureCoordAttribute, model1VertexTexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, zombieVertexTexBuffer);
+  gl.vertexAttribPointer(currentProgram.textureCoordAttribute, zombieVertexTexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
   // Activate textures
   gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, testBarvaTexture);
+  gl.bindTexture(gl.TEXTURE_2D, monsterTexture);
   gl.uniform1i(currentProgram.samplerUniform, 0);
 
   // Draw the crate
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model1VertexIndexBuffer);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, zombieVertexIndexBuffer);
   setMatrixUniforms();
-  gl.drawElements(gl.TRIANGLES, model1VertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+  gl.drawElements(gl.TRIANGLES, zombieVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 
   // restore last location
   mvPopMatrix();
@@ -1210,6 +1219,7 @@ function start() {
     // Here's where we call the routine that builds all the objects
     // we'll be drawing.
     loadModel('./assets/vojak.json', handleLoadedModel1);
+    loadModel('./assets/monster.json', handleLoadedZombie);
     initBuffers();
 
     // Next, load and set up the textures we'll be using.
@@ -1266,25 +1276,25 @@ function anyColide() {
 function anyColideZombie1() {
   return (coliding(zombie1Position, zombieRadius, moonPosition, moonRadius) || //collision z luno
             coliding(zombie1Position, zombieRadius, cubePosition, cubeRadius) ||
-            coliding(zombie1Position, zombieRadius, playerPosition, playerRadius) ||
+            coliding(zombie1Position, zombieRadius, playerPosition, playerRadius) /*||
             coliding(zombie1Position, zombieRadius, zombie2Position, zombieRadius) ||
-            coliding(zombie1Position, zombieRadius, zombie3Position, zombieRadius));  //collision z kocko
+            coliding(zombie1Position, zombieRadius, zombie3Position, zombieRadius)*/);  //collision z kocko
 }
 
 function anyColideZombie2() {
   return (coliding(zombie2Position, zombieRadius, moonPosition, moonRadius) || //collision z luno
             coliding(zombie2Position, zombieRadius, cubePosition, cubeRadius) ||
-            coliding(zombie2Position, zombieRadius, playerPosition, playerRadius) ||
+            coliding(zombie2Position, zombieRadius, playerPosition, playerRadius) /*||
             coliding(zombie2Position, zombieRadius, zombie1Position, zombieRadius) ||
-            coliding(zombie2Position, zombieRadius, zombie3Position, zombieRadius));  //collision z kocko
+            coliding(zombie2Position, zombieRadius, zombie3Position, zombieRadius)*/);  //collision z kocko
 }
 
 function anyColideZombie3() {
   return (coliding(zombie3Position, zombieRadius, moonPosition, moonRadius) || //collision z luno
             coliding(zombie3Position, zombieRadius, cubePosition, cubeRadius) ||
-            coliding(zombie3Position, zombieRadius, playerPosition, playerRadius) ||
+            coliding(zombie3Position, zombieRadius, playerPosition, playerRadius) /*||
             coliding(zombie3Position, zombieRadius, zombie2Position, zombieRadius) ||
-            coliding(zombie3Position, zombieRadius, zombie1Position, zombieRadius));  //collision z kocko
+            coliding(zombie3Position, zombieRadius, zombie1Position, zombieRadius)*/);  //collision z kocko
 }
 var timer = 0;
 function moveZombies() {
@@ -1302,8 +1312,8 @@ function moveZombies() {
     }
     
     if(anyColideZombie1()) {
-      zombie1Position[0] += xMul1 * Math.abs(Math.sin(degToRad(zombie1Rotation)))*zombieSpeed;
-      zombie1Position[2] += zMul1 * Math.abs(Math.cos(degToRad(zombie1Rotation)))*zombieSpeed;
+      zombie1Position[0] += xMul1 * Math.abs(Math.sin(degToRad(zombie1Rotation)))*zombieSpeed*2;
+      zombie1Position[2] += zMul1 * Math.abs(Math.cos(degToRad(zombie1Rotation)))*zombieSpeed*2;
     }
 
 
@@ -1322,8 +1332,8 @@ function moveZombies() {
     }
     
     if(anyColideZombie2()) {
-      zombie2Position[0] += xMul1 * Math.abs(Math.sin(degToRad(zombie2Rotation)))*zombieSpeed;
-      zombie2Position[2] += zMul1 * Math.abs(Math.cos(degToRad(zombie2Rotation)))*zombieSpeed;
+      zombie2Position[0] += xMul1 * Math.abs(Math.sin(degToRad(zombie2Rotation)))*zombieSpeed*2;
+      zombie2Position[2] += zMul1 * Math.abs(Math.cos(degToRad(zombie2Rotation)))*zombieSpeed*2;
     }
     
 
@@ -1340,10 +1350,41 @@ function moveZombies() {
     }
     
     if(anyColideZombie3()) {
-      zombie3Position[0] += xMul1 * Math.abs(Math.sin(degToRad(zombie3Rotation)))*zombieSpeed;
-      zombie3Position[2] += zMul1 * Math.abs(Math.cos(degToRad(zombie3Rotation)))*zombieSpeed;
+      zombie3Position[0] += xMul1 * Math.abs(Math.sin(degToRad(zombie3Rotation)))*zombieSpeed*2;
+      zombie3Position[2] += zMul1 * Math.abs(Math.cos(degToRad(zombie3Rotation)))*zombieSpeed*2;
     }
-
+    
+    if(coliding(zombie1Position, zombieRadius, zombie2Position, zombieRadius)) {
+      portAudio.play();
+      var vecZomb = [-zombie2Position[0] + zombie1Position[0], -zombie2Position[1] + zombie1Position[1], -zombie2Position[2] + zombie1Position[2]];
+      zombie1Position[0] -= vecZomb[0]*4;
+      zombie1Position[2] -= vecZomb[2]*4;
+      zombie2Position[0] += vecZomb[0]*4;
+      zombie2Position[2] += vecZomb[2]*4;
+    }
+    
+    if(coliding(zombie1Position, zombieRadius, zombie3Position, zombieRadius)) {
+      portAudio.play();
+      var vecZomb = [-zombie3Position[0] + zombie1Position[0], -zombie3Position[1] + zombie1Position[1], -zombie3Position[2] + zombie1Position[2]];
+      zombie1Position[0] -= vecZomb[0]*4;
+      zombie1Position[2] -= vecZomb[2]*4;
+      zombie3Position[0] += vecZomb[0]*4;
+      zombie3Position[2] += vecZomb[2]*4;
+    }
+    
+    if(coliding(zombie2Position, zombieRadius, zombie3Position, zombieRadius)) {
+      portAudio.play();
+      var vecZomb = [-zombie3Position[0] + zombie2Position[0], -zombie3Position[1] + zombie2Position[1], -zombie3Position[2] + zombie2Position[2]];
+      zombie2Position[0] -= vecZomb[0]*4;
+      zombie2Position[2] -= vecZomb[2]*4;
+      zombie3Position[0] += vecZomb[0]*4;
+      zombie2Position[2] += vecZomb[2]*4;
+    }
+    if(timer == 60) {
+      timer = 0;
+      console.log("vecToPlayer1: ", vecToPlayer1);
+    }
+    
     timer += 1;
 }
 /**
