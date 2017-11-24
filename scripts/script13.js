@@ -94,7 +94,7 @@ var sodVertexTexBuffer;
 var sodVertexIndexBuffer;
 
 
-var sodPosition = [0, 3, 0];
+
 
 var playerPosition = [0, 0, 0];
 var playerRadius = 1;
@@ -134,6 +134,9 @@ var zombie3Spin = 0;
 var tlaPosition = [0, -1.2, 0];
 var tlaRotation = 0;
 var floorScale = [100, 100, 1];
+
+var sodPosition = [0, 3, 0];
+var sodRadius = 1;
 
 
 var cubePosition = [3.25, 0, 0];
@@ -414,7 +417,7 @@ function initTextures() {
   sodTexture.image.onload = function () {
     handleTextureLoaded(sodTexture)
   }
-  sodTexture.image.src = "./assets/sodTex.jpg";
+  sodTexture.image.src = "./assets/test.jpg";
   
   
   
@@ -1248,9 +1251,9 @@ function drawScene() {
   mvPushMatrix();
   mat4.translate(mvMatrix, sodPosition);
   mat4.scale(mvMatrix, [1.5, 1.5, 1.5]);
-  mat4.rotate(mvMatrix, degToRad(180), [0, 1, 0]);//popravki, da je pravilno obrnjen in na tleh
+  //mat4.rotate(mvMatrix, degToRad(180), [0, 1, 0]);//popravki, da je pravilno obrnjen in na tleh
   //mat4.rotate(mvMatrix, degToRad(zombie3Spin), [0, 1, 0]);
-  mat4.translate(mvMatrix, [0, -1, 0]);
+  
 
   ///mat4.rotate(mvMatrix, degToRad(zombie3Rotation), [0, 1, 0]);
   //mat4.rotate(mvMatrix, degToRad(cubeAngle), [0, 1, 0]);
@@ -1746,17 +1749,17 @@ function restartGame() {
 
 
 
-  zombie1Position = [15, 0, 0];
+  zombie1Position = [50, 0, 0];
   zombie1Rotation = 0;
   zombie1Health = 10;
   zombie1Spin = 0;
 
-  zombie2Position = [0, 0, 30];
+  zombie2Position = [-50, 0, 30];
   zombie2Rotation = 0;
   zombie2Health = 10;
   zombie2Spin = 0;
 
-  zombie3Position = [0, 0, -7];
+  zombie3Position = [0, 0, 50];
   zombie3Rotation = 0;
   zombie3Health = 10;
   zombie3Spin = 0;
@@ -1765,7 +1768,7 @@ function restartGame() {
 
   cubePosition = [3.25, 0, 0];
 
-  moonPosition = [-15.0, 25, 0];
+  moonPosition = [-15.0, -30, -30];
 
   gameOver = false;
 
