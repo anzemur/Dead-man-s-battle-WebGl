@@ -135,7 +135,7 @@ var tlaPosition = [0, -1.2, 0];
 var tlaRotation = 0;
 var floorScale = [100, 100, 1];
 
-var sodPosition = [0, 3, 0];
+var sodPosition = [0, 0, 0];
 var sodRadius = 1;
 
 
@@ -1596,13 +1596,15 @@ function anyColide() {
             coliding(playerPosition, playerRadius, cubePosition, cubeRadius) ||
             coliding(playerPosition, playerRadius, zombie1Position, zombieRadius) ||
             coliding(playerPosition, playerRadius, zombie2Position, zombieRadius) ||
-            coliding(playerPosition, playerRadius, zombie3Position, zombieRadius));  //collision z kocko
+            coliding(playerPosition, playerRadius, zombie3Position, zombieRadius ||
+            coliding(playerPosition, playerRadius, sodPosition, sodRadius)));  //collision z kocko
 }
 
 function anyColideZombie1() {
   return (coliding(zombie1Position, zombieRadius, moonPosition, moonRadius) || //collision z luno
             coliding(zombie1Position, zombieRadius, cubePosition, cubeRadius) ||
-            coliding(zombie1Position, zombieRadius, playerPosition, playerRadius) /*||
+            coliding(zombie1Position, zombieRadius, playerPosition, playerRadius) ||
+            coliding(zombie1Position, zombieRadius, sodPosition, sodRadius)/*||
             coliding(zombie1Position, zombieRadius, zombie2Position, zombieRadius) ||
             coliding(zombie1Position, zombieRadius, zombie3Position, zombieRadius)*/);  //collision z kocko
 }
@@ -1610,7 +1612,8 @@ function anyColideZombie1() {
 function anyColideZombie2() {
   return (coliding(zombie2Position, zombieRadius, moonPosition, moonRadius) || //collision z luno
             coliding(zombie2Position, zombieRadius, cubePosition, cubeRadius) ||
-            coliding(zombie2Position, zombieRadius, playerPosition, playerRadius) /*||
+            coliding(zombie2Position, zombieRadius, playerPosition, playerRadius) ||
+            coliding(zombie2Position, zombieRadius, sodPosition, sodRadius)/*||
             coliding(zombie2Position, zombieRadius, zombie1Position, zombieRadius) ||
             coliding(zombie2Position, zombieRadius, zombie3Position, zombieRadius)*/);  //collision z kocko
 }
@@ -1618,7 +1621,8 @@ function anyColideZombie2() {
 function anyColideZombie3() {
   return (coliding(zombie3Position, zombieRadius, moonPosition, moonRadius) || //collision z luno
             coliding(zombie3Position, zombieRadius, cubePosition, cubeRadius) ||
-            coliding(zombie3Position, zombieRadius, playerPosition, playerRadius) /*||
+            coliding(zombie3Position, zombieRadius, playerPosition, playerRadius) ||
+            coliding(zombie3Position, zombieRadius, sodPosition, sodRadius)/*||
             coliding(zombie3Position, zombieRadius, zombie2Position, zombieRadius) ||
             coliding(zombie3Position, zombieRadius, zombie1Position, zombieRadius)*/);  //collision z kocko
 }
