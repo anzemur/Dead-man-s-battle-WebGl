@@ -1503,7 +1503,7 @@ function start() {
         inGameUI.style.visibility = 'visible';
         loadMenu.style.visibility = 'hidden';
         
-        if(Math.abs(playerPosition[0]) > floorScale[0]+1 ||  Math.abs(playerPosition[0]) > floorScale[1] + 1) {
+        if(Math.abs(playerPosition[0]) > floorScale[0]+1 ||  Math.abs(playerPosition[2]) > floorScale[1] + 1) {
           hurtPlayer(playerHealth, hurtAudio);
         }
         if(playerHurtTimeout > 0) {
