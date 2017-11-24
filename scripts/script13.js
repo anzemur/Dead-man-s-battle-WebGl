@@ -90,6 +90,7 @@ var playerAttackCooldown = 0;
 
 var playerRotation = 0;
 var spin2Win = 0;
+var playerForwardTilt = 45;
 
 var speedFW = 0.3;
 var speedBW = 0.15;
@@ -98,18 +99,21 @@ var speedSide = 0.2;
 
 var zombie1Position = [15, 0, 0];
 var zombie1Rotation = 0;
-var zombie1Health = 10;
+var zombie1Health = 5;
+var zombie1Spin = 0;
 
 var zombie2Position = [0, 0, 30];
 var zombie2Rotation = 0;
-var zombie2Health = 10;
+var zombie2Health = 5;
+var zombie2Spin = 0;
 
 var zombie3Position = [0, 0, -7];
 var zombie3Rotation = 0;
-var zombie3Health = 10;
+var zombie3Health = 5;
 
-var zombieSpeed = 0.05;
+var zombieSpeed = 0.1;
 var zombieRadius = 1;
+var zombie3Spin = 0;
 
 
 var cubePosition = [3.25, 0, 0];
@@ -913,6 +917,7 @@ function drawScene() {
   mat4.translate(mvMatrix, [0, -1, 0]);
 
   mat4.rotate(mvMatrix, degToRad(playerRotation), [0, 1, 0]);
+  mat4.rotate(mvMatrix, degToRad(playerForwardTilt), [1, 0, 0]);
   mat4.rotate(mvMatrix, degToRad(spin2Win), [0, 1, 0]);
   //mat4.rotate(mvMatrix, degToRad(cubeAngle), [0, 1, 0]);
   //mat4.translate(mvMatrix, [1.25, 0, 4]);
@@ -951,6 +956,7 @@ function drawScene() {
   mat4.translate(mvMatrix, zombie1Position);
   mat4.scale(mvMatrix, [1.5, 1.5, 1.5]);
   mat4.rotate(mvMatrix, degToRad(180), [0, 1, 0]);//popravki, da je pravilno obrnjen in na tleh
+  mat4.rotate(mvMatrix, degToRad(zombie1Spin), [0, 1, 0]);
   mat4.translate(mvMatrix, [0, -1, 0]);
 
   mat4.rotate(mvMatrix, degToRad(zombie1Rotation), [0, 1, 0]);
@@ -987,6 +993,7 @@ function drawScene() {
   mat4.translate(mvMatrix, zombie2Position);
   mat4.scale(mvMatrix, [1.5, 1.5, 1.5]);
   mat4.rotate(mvMatrix, degToRad(180), [0, 1, 0]);//popravki, da je pravilno obrnjen in na tleh
+  mat4.rotate(mvMatrix, degToRad(zombie2Spin), [0, 1, 0]);
   mat4.translate(mvMatrix, [0, -1, 0]);
 
   mat4.rotate(mvMatrix, degToRad(zombie2Rotation), [0, 1, 0]);
@@ -1023,6 +1030,7 @@ function drawScene() {
   mat4.translate(mvMatrix, zombie3Position);
   mat4.scale(mvMatrix, [1.5, 1.5, 1.5]);
   mat4.rotate(mvMatrix, degToRad(180), [0, 1, 0]);//popravki, da je pravilno obrnjen in na tleh
+  mat4.rotate(mvMatrix, degToRad(zombie3Spin), [0, 1, 0]);
   mat4.translate(mvMatrix, [0, -1, 0]);
 
   mat4.rotate(mvMatrix, degToRad(zombie3Rotation), [0, 1, 0]);
@@ -1107,11 +1115,14 @@ function handleKeys() {
           //console.log("player pos: ", playerPosition);
           playerPosition[2] -= Math.cos(degToRad(playerRotation))*speedFW;
           playerPosition[0] -= Math.sin(degToRad(playerRotation))*speedFW;
+          playerForwardTilt = 45;
           if(anyColide()){
               //hurtAudio.play();
               playerPosition[2] += Math.cos(degToRad(playerRotation))*speedFW;
               playerPosition[0] += Math.sin(degToRad(playerRotation))*speedFW;
           }
+      } else {
+        playerForwardTilt = 0;
       }
       if (currentlyPressedKeys[83]) {
           //S - player moves backward
@@ -1156,31 +1167,34 @@ function handleKeys() {
         if(coliding(playerPosition, playerRadius + playerAttackRange, zombie1Position, zombieRadius)) {
           hurtZombie1(1, zombieHurtAudio);
 
-            console.log("zombie1health: ", zombie3Health);
+            //console.log("zombie1health: ", zombie3Health);
           if(zombie1Health <= 0) {
             zombie1Health = 10;
             zombie1Position[0] = playerPosition[0] + Math.sin(degToRad(playerRotation))*(Math.random()*5+15);
             zombie1Position[2] = playerPosition[2] + Math.cos(degToRad(playerRotation))*(Math.random()*5+15);
+            zombie1Spin = 0;
           }
         }
         if(coliding(playerPosition, playerRadius + playerAttackRange, zombie2Position, zombieRadius)) {
           hurtZombie2(1, zombieHurtAudio);
 
-            console.log("zombie2health: ", zombie3Health);
+            //console.log("zombie2health: ", zombie3Health);
           if(zombie2Health <= 0) {
 
             zombie2Health = 10;
             zombie2Position[0] = playerPosition[0] + Math.sin(degToRad(playerRotation))*(Math.random()*5+15);
             zombie2Position[2] = playerPosition[2] + Math.cos(degToRad(playerRotation))*(Math.random()*5+15);
+            zombie2Spin = 0;
           }
         }
         if(coliding(playerPosition, playerRadius + playerAttackRange, zombie3Position, zombieRadius)) {
           hurtZombie3(1, zombieHurtAudio);
-          console.log("zombie3health: ", zombie3Health);
+          //console.log("zombie3health: ", zombie3Health);
           if(zombie3Health <= 0) {
             zombie3Health = 10;
             zombie3Position[0] = playerPosition[0] + Math.sin(degToRad(playerRotation))*(Math.random()*5+15);
             zombie3Position[2] = playerPosition[2] + Math.cos(degToRad(playerRotation))*(Math.random()*5+15);
+            zombie3Spin = 0;
           }
         }
       }
@@ -1268,6 +1282,10 @@ function start() {
             spin2Win = (spin2Win + 360*4/120)%360;
           }
         }
+        zombie1Spin = (zombie1Spin + 360*4/120)%360;
+        zombie2Spin = (zombie2Spin + 360*4/120)%360;
+        zombie3Spin = (zombie3Spin + 360*4/120)%360;
+        
         if(playerHealth <= 0) {
             deadAudio.play();
             gameOverMenu.style.visibility = 'visible';
@@ -1498,14 +1516,17 @@ function restartGame() {
   zombie1Position = [15, 0, 0];
   zombie1Rotation = 0;
   zombie1Health = 10;
+  zombie1Spin = 0;
 
   zombie2Position = [0, 0, 30];
   zombie2Rotation = 0;
   zombie2Health = 10;
+  zombie2Spin = 0;
 
   zombie3Position = [0, 0, -7];
   zombie3Rotation = 0;
   zombie3Health = 10;
+  zombie3Spin = 0;
 
 
 
