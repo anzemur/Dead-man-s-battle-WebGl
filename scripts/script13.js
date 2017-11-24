@@ -85,7 +85,7 @@ var playerRadius = 1;
 
 var playerHealth = 6;
 var playerHurtTimeout = 0;
-var playerAttackRange = 7;
+var playerAttackRange = 4;
 var playerAttackCooldown = 0;
 
 var playerRotation = 0;
