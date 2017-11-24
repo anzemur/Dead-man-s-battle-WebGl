@@ -1379,7 +1379,7 @@ function start() {
     // Set up to draw the scene periodically.
     setInterval(function() {
       if (texturesLoaded >= numberOfTextures && modelsLoaded >= numberOfModels && !gameOver && playTime) { // only draw scene and animate when textures are loaded.
-        if(Math.abs(playerPosition[0]) > 101 ||  Math.abs(playerPosition[0]) > 101) {
+        if(Math.abs(playerPosition[0]) > floorScale[0]+1 ||  Math.abs(playerPosition[0]) > floorScale[1] + 1) {
           hurtPlayer(playerHealth, hurtAudio);
         }
         if(playerHurtTimeout > 0) {
