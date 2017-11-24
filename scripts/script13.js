@@ -80,6 +80,11 @@ var zombieVertexNormalBuffer;
 var zombieVertexTexBuffer;
 var zombieVertexIndexBuffer;
 
+var floorVertexPositionBuffer;
+var floorVertexNormalBuffer;
+var floorVertexTexBuffer;
+var floorVertexIndexBuffer;
+
 var playerPosition = [0, 0, 0];
 var playerRadius = 1;
 
@@ -115,6 +120,10 @@ var zombieSpeed = 0.1;
 var zombieRadius = 1;
 var zombie3Spin = 0;
 
+var tlaPosition = [0, -1.2, 0];
+var tlaRotation = 0;
+var floorScale = [100, 100, 1];
+
 
 var cubePosition = [3.25, 0, 0];
 var cubeRadius = 1;
@@ -142,12 +151,13 @@ var moonTexture;
 var crateTexture;
 var testBarvaTexture;
 var monsterTexture;
+var floorTexture;
 
 // Variable that stores  loading state of textures.
-var numberOfTextures = 4;
+var numberOfTextures = 5;
 var texturesLoaded = 0;
 
-var numberOfModels = 4;
+var numberOfModels = 5;
 var modelsLoaded = 0;
 
 // Mouse helper variables
@@ -379,6 +389,13 @@ function initTextures() {
     handleTextureLoaded(monsterTexture)
   }
   monsterTexture.image.src = "./assets/monsterTex.png";
+  
+  floorTexture = gl.createTexture();
+  floorTexture.image = new Image();
+  floorTexture.image.onload = function () {
+    handleTextureLoaded(floorTexture)
+  }
+  floorTexture.image.src = "./assets/tlaTex.jpg";
 }
 
 function handleTextureLoaded(texture) {
@@ -508,6 +525,55 @@ function handleLoadedZombie(modelData){
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(zombieIndices), gl.STATIC_DRAW);
   zombieVertexIndexBuffer.itemSize = 1;
   zombieVertexIndexBuffer.numItems = zombieIndices.length;
+
+  modelsLoaded += 1;
+}
+
+var floorVertices;
+var floorNormals;
+var floorIndices;
+var floorTexCoords;
+function handleLoadedFloor(modelData){
+  floorVertices = modelData.meshes[0].vertices;
+  floorNormals = modelData.meshes[0].normals;
+  floorIndices = [].concat.apply([], modelData.meshes[0].faces);
+  floorTexCoords = modelData.meshes[0].texturecoords[0];
+
+  //console.log(zombieVertices);
+  //console.log(zombieIndices);
+  //console.log(zombieTexCoords);
+  //console.log(zombieNormals);
+
+  console.log("Vertex num: "+floorVertices.length);
+  console.log("Normals num: "+floorNormals.length);
+  console.log("Normals num /3: "+floorNormals.length/3);
+  console.log("Textures num: "+floorTexCoords.length);
+  console.log("Indices num: "+floorIndices.length);
+
+  //OD TUKI NAPREJ INICIALIZIRAMO BUFFERJE
+  floorVertexPositionBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, floorVertexPositionBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(floorVertices), gl.STATIC_DRAW);
+  floorVertexPositionBuffer.itemSize = 3;
+  floorVertexPositionBuffer.numItems = floorVertices.length / 3;
+
+  floorVertexNormalBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, floorVertexNormalBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(floorNormals), gl.STATIC_DRAW);
+  floorVertexNormalBuffer.itemSize = 3;
+  floorVertexNormalBuffer.numItems = floorNormals.length / 3;
+
+  floorVertexTexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, floorVertexTexBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(floorTexCoords), gl.STATIC_DRAW);
+  floorVertexTexBuffer.itemSize = 2;
+  floorVertexTexBuffer.numItems = floorTexCoords.length / 2;
+
+  floorVertexIndexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, floorVertexIndexBuffer);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(floorIndices), gl.STATIC_DRAW);
+  floorVertexIndexBuffer.itemSize = 1;
+  floorVertexIndexBuffer.numItems = floorIndices.length;
 
   modelsLoaded += 1;
 }
@@ -1061,6 +1127,45 @@ function drawScene() {
 
   // restore last location
   mvPopMatrix();
+  
+  
+  
+  //////////////////////////////tla
+  mvPushMatrix();
+  mat4.translate(mvMatrix, tlaPosition);
+  //mat4.scale(mvMatrix, [1.5, 1.5, 1.5]);
+  mat4.rotate(mvMatrix, degToRad(90), [1, 0, 0]);//popravki, da je pravilno obrnjen in na tleh
+  mat4.scale(mvMatrix, floorScale);
+  //mat4.translate(mvMatrix, [0, -1, 0]);
+
+  //mat4.rotate(mvMatrix, degToRad(tlaRotation), [0, 1, 0]);
+  //mat4.rotate(mvMatrix, degToRad(cubeAngle), [0, 1, 0]);
+  //mat4.translate(mvMatrix, [1.25, 0, 4]);
+
+  // Set the vertex positions attribute for the crate vertices.
+  gl.bindBuffer(gl.ARRAY_BUFFER, floorVertexPositionBuffer);
+  gl.vertexAttribPointer(currentProgram.vertexPositionAttribute, floorVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+  // Set the normals attribute for the vertices.
+  gl.bindBuffer(gl.ARRAY_BUFFER, floorVertexNormalBuffer);
+  gl.vertexAttribPointer(currentProgram.vertexNormalAttribute, floorVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+  // Set the texture coordinates attribute for the vertices.
+  gl.bindBuffer(gl.ARRAY_BUFFER, floorVertexTexBuffer);
+  gl.vertexAttribPointer(currentProgram.textureCoordAttribute, floorVertexTexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+  // Activate textures
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, floorTexture);
+  gl.uniform1i(currentProgram.samplerUniform, 0);
+
+  // Draw the crate
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, floorVertexIndexBuffer);
+  setMatrixUniforms();
+  gl.drawElements(gl.TRIANGLES, floorVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+
+  // restore last location
+  mvPopMatrix();
 }
 
 //
@@ -1262,6 +1367,7 @@ function start() {
     // we'll be drawing.
     loadModel('./assets/vojak.json', handleLoadedModel1);
     loadModel('./assets/monster.json', handleLoadedZombie);
+    loadModel('./assets/tla.json', handleLoadedFloor);
     initBuffers();
 
     // Next, load and set up the textures we'll be using.
@@ -1272,7 +1378,10 @@ function start() {
 
     // Set up to draw the scene periodically.
     setInterval(function() {
-      if (texturesLoaded == numberOfTextures && modelsLoaded == numberOfModels && !gameOver && playTime) { // only draw scene and animate when textures are loaded.
+      if (texturesLoaded >= numberOfTextures && modelsLoaded >= numberOfModels && !gameOver && playTime) { // only draw scene and animate when textures are loaded.
+        if(Math.abs(playerPosition[0]) > 101 ||  Math.abs(playerPosition[0]) > 101) {
+          hurtPlayer(playerHealth, hurtAudio);
+        }
         if(playerHurtTimeout > 0) {
           playerHurtTimeout -= 1;
         }
@@ -1296,7 +1405,7 @@ function start() {
         switch (playerHealth) {
           case 5:
             full_3.style.visibility ='hidden';
-            console.log("first hit");
+            //console.log("first hit");
             break;
 
           case 4:
