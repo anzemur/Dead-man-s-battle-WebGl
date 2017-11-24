@@ -681,16 +681,8 @@ function handleLoadedSod1(modelData){
   sod1Indices = [].concat.apply([], modelData.meshes[0].faces);
   sod1TexCoords = modelData.meshes[0].texturecoords[0];
 
-  //console.log(zombieVertices);
-  //console.log(zombieIndices);
-  //console.log(zombieTexCoords);
-  //console.log(zombieNormals);
-
-  console.log("Vertex num: "+sodVertices.length);
-  console.log("Normals num: "+sodNormals.length);
-  console.log("Normals num /3: "+sodNormals.length/3);
-  console.log("Textures num: "+sodTexCoords.length);
-  console.log("Indices num: "+sodIndices.length);
+  
+ 
 
   //OD TUKI NAPREJ INICIALIZIRAMO BUFFERJE
   sod1VertexPositionBuffer = gl.createBuffer();
